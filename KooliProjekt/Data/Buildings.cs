@@ -10,9 +10,9 @@ namespace KooliProjekt.Data
         [StringLength(255)]
         public string Name { get; set; }
         [Required]
-        public int PanelId { get; set; }
+        public string PanelId { get; set; }
         [Required]
-        public int MaterialId { get; set; }
+        public string MaterialId { get; set; }
 
 
         public Panels Panels { get; set; }

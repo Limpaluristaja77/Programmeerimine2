@@ -13,7 +13,7 @@ namespace KooliProjekt.Data
         [Required]
         public int ServicesId { get; set; }
         [Required]
-        [StringLength(10)]
+        [StringLength(20)]
         public DateTime Date { get; set; }
         [Required]
         public decimal Cost { get; set; }

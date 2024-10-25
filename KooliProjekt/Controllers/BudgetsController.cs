@@ -19,10 +19,10 @@ namespace KooliProjekt.Controllers
         }
 
         // GET: Budgets
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1)
         {
             var applicationDbContext = _context.Budgets.Include(b => b.Buildings).Include(b => b.Client).Include(b => b.Services);
-            return View(await applicationDbContext.ToListAsync());
+            return View(await applicationDbContext.GetPagedAsync(page ,5));
         }
 
         // GET: Budgets/Details/5
