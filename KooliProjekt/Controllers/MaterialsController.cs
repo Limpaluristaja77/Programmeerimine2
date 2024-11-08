@@ -53,7 +53,7 @@ namespace KooliProjekt.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Unit,UnitCost,Manufacturer")] Materials materials)
+        public async Task<IActionResult> Create([Bind("Id,Name,Unit,UnitCost,Manufacturer")] Material materials)
         {
             if (ModelState.IsValid)
             {
@@ -85,7 +85,7 @@ namespace KooliProjekt.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Unit,UnitCost,Manufacturer")] Materials materials)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Unit,UnitCost,Manufacturer")] Material materials)
         {
             if (id != materials.Id)
             {

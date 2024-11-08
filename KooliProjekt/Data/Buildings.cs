@@ -15,8 +15,14 @@ namespace KooliProjekt.Data
         public string MaterialId { get; set; }
 
 
-        public Panels Panels { get; set; }
-        public Materials Materials { get; set; }
+        public IList<Panel> Panels { get; set; }
+        public IList<Material> Materials { get; set; }
+
+        public Buildings()
+        {
+            Panels = new List<Panel>();
+            Materials = new List<Material>();
+        }
 
     } 
 }
