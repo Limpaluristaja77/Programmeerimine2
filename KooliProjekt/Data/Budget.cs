@@ -21,7 +21,7 @@ namespace KooliProjekt.Data
 
         public Client Client { get; set; }
         public Buildings Buildings { get; set; }
-        public Services Services { get; set; }
+        public Service Services { get; set; }
         
 
 

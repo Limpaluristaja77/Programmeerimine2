@@ -11,17 +11,17 @@ namespace KooliProjekt.Controllers
 {
     public class MaterialsController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ApplicationDbContext _materialsservice;
 
         public MaterialsController(ApplicationDbContext context)
         {
-            _context = context;
+            _materialsservice = context;
         }
 
         // GET: Materials
         public async Task<IActionResult> Index(int page = 1)
         {
-            return View(await _context.Materials.GetPagedAsync(page, 5));
+            return View(await _materialsservice.Materials.GetPagedAsync(page, 5));
         }
 
         // GET: Materials/Details/5
@@ -32,7 +32,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var materials = await _context.Materials
+            var materials = await _materialsservice.Materials
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (materials == null)
             {
@@ -57,8 +57,8 @@ namespace KooliProjekt.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(materials);
-                await _context.SaveChangesAsync();
+                _materialsservice.Add(materials);
+                await _materialsservice.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
             return View(materials);
@@ -72,7 +72,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var materials = await _context.Materials.FindAsync(id);
+            var materials = await _materialsservice.Materials.FindAsync(id);
             if (materials == null)
             {
                 return NotFound();
@@ -96,8 +96,8 @@ namespace KooliProjekt.Controllers
             {
                 try
                 {
-                    _context.Update(materials);
-                    await _context.SaveChangesAsync();
+                    _materialsservice.Update(materials);
+                    await _materialsservice.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -123,7 +123,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var materials = await _context.Materials
+            var materials = await _materialsservice.Materials
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (materials == null)
             {
@@ -138,19 +138,19 @@ namespace KooliProjekt.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var materials = await _context.Materials.FindAsync(id);
+            var materials = await _materialsservice.Materials.FindAsync(id);
             if (materials != null)
             {
-                _context.Materials.Remove(materials);
+                _materialsservice.Materials.Remove(materials);
             }
 
-            await _context.SaveChangesAsync();
+            await _materialsservice.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool MaterialsExists(int id)
         {
-            return _context.Materials.Any(e => e.Id == id);
+            return _materialsservice.Materials.Any(e => e.Id == id);
         }
     }
 }

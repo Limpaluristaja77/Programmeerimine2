@@ -11,17 +11,17 @@ namespace KooliProjekt.Controllers
 {
     public class BudgetsController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ApplicationDbContext _budgetservice;
 
         public BudgetsController(ApplicationDbContext context)
         {
-            _context = context;
+            _budgetservice = context;
         }
 
         // GET: Budgets
         public async Task<IActionResult> Index(int page = 1)
         {
-            var applicationDbContext = _context.Budgets.Include(b => b.Buildings).Include(b => b.Client).Include(b => b.Services);
+            var applicationDbContext = _budgetservice.Budgets.Include(b => b.Buildings).Include(b => b.Client).Include(b => b.Services);
             return View(await applicationDbContext.GetPagedAsync(page ,5));
         }
 
@@ -33,7 +33,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var budget = await _context.Budgets
+            var budget = await _budgetservice.Budgets
                 .Include(b => b.Buildings)
                 .Include(b => b.Client)
                 .Include(b => b.Services)
@@ -49,9 +49,9 @@ namespace KooliProjekt.Controllers
         // GET: Budgets/Create
         public IActionResult Create()
         {
-            ViewData["BuildingsId"] = new SelectList(_context.Buildings, "Id", "Name");
-            ViewData["ClientId"] = new SelectList(_context.Clients, "Id", "Name");
-            ViewData["ServicesId"] = new SelectList(_context.Services, "Id", "Name");
+            ViewData["BuildingsId"] = new SelectList(_budgetservice.Buildings, "Id", "Name");
+            ViewData["ClientId"] = new SelectList(_budgetservice.Clients, "Id", "Name");
+            ViewData["ServicesId"] = new SelectList(_budgetservice.Service, "Id", "Name");
             return View();
         }
 
@@ -64,13 +64,13 @@ namespace KooliProjekt.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(budget);
-                await _context.SaveChangesAsync();
+                _budgetservice.Add(budget);
+                await _budgetservice.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["BuildingsId"] = new SelectList(_context.Buildings, "Id", "Name", budget.BuildingsId);
-            ViewData["ClientId"] = new SelectList(_context.Clients, "Id", "Name", budget.ClientId);
-            ViewData["ServicesId"] = new SelectList(_context.Services, "Id", "Name", budget.ServicesId);
+            ViewData["BuildingsId"] = new SelectList(_budgetservice.Buildings, "Id", "Name", budget.BuildingsId);
+            ViewData["ClientId"] = new SelectList(_budgetservice.Clients, "Id", "Name", budget.ClientId);
+            ViewData["ServicesId"] = new SelectList(_budgetservice.Service, "Id", "Name", budget.ServicesId);
             return View(budget);
         }
 
@@ -82,14 +82,14 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var budget = await _context.Budgets.FindAsync(id);
+            var budget = await _budgetservice.Budgets.FindAsync(id);
             if (budget == null)
             {
                 return NotFound();
             }
-            ViewData["BuildingsId"] = new SelectList(_context.Buildings, "Id", "Name", budget.BuildingsId);
-            ViewData["ClientId"] = new SelectList(_context.Clients, "Id", "Name", budget.ClientId);
-            ViewData["ServicesId"] = new SelectList(_context.Services, "Id", "Name", budget.ServicesId);
+            ViewData["BuildingsId"] = new SelectList(_budgetservice.Buildings, "Id", "Name", budget.BuildingsId);
+            ViewData["ClientId"] = new SelectList(_budgetservice.Clients, "Id", "Name", budget.ClientId);
+            ViewData["ServicesId"] = new SelectList(_budgetservice.Service, "Id", "Name", budget.ServicesId);
             return View(budget);
         }
 
@@ -109,8 +109,8 @@ namespace KooliProjekt.Controllers
             {
                 try
                 {
-                    _context.Update(budget);
-                    await _context.SaveChangesAsync();
+                    _budgetservice.Update(budget);
+                    await _budgetservice.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -125,9 +125,9 @@ namespace KooliProjekt.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["BuildingsId"] = new SelectList(_context.Buildings, "Id", "Name", budget.BuildingsId);
-            ViewData["ClientId"] = new SelectList(_context.Clients, "Id", "Name", budget.ClientId);
-            ViewData["ServicesId"] = new SelectList(_context.Services, "Id", "Name", budget.ServicesId);
+            ViewData["BuildingsId"] = new SelectList(_budgetservice.Buildings, "Id", "Name", budget.BuildingsId);
+            ViewData["ClientId"] = new SelectList(_budgetservice.Clients, "Id", "Name", budget.ClientId);
+            ViewData["ServicesId"] = new SelectList(_budgetservice.Service, "Id", "Name", budget.ServicesId);
             return View(budget);
         }
 
@@ -139,7 +139,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var budget = await _context.Budgets
+            var budget = await _budgetservice.Budgets
                 .Include(b => b.Buildings)
                 .Include(b => b.Client)
                 .Include(b => b.Services)
@@ -157,19 +157,19 @@ namespace KooliProjekt.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var budget = await _context.Budgets.FindAsync(id);
+            var budget = await _budgetservice.Budgets.FindAsync(id);
             if (budget != null)
             {
-                _context.Budgets.Remove(budget);
+                _budgetservice.Budgets.Remove(budget);
             }
 
-            await _context.SaveChangesAsync();
+            await _budgetservice.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool BudgetExists(int id)
         {
-            return _context.Budgets.Any(e => e.Id == id);
+            return _budgetservice.Budgets.Any(e => e.Id == id);
         }
     }
 }

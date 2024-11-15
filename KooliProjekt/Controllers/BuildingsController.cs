@@ -11,17 +11,17 @@ namespace KooliProjekt.Controllers
 {
     public class BuildingsController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ApplicationDbContext _buildingsservice;
 
         public BuildingsController(ApplicationDbContext context)
         {
-            _context = context;
+            _buildingsservice = context;
         }
 
         // GET: Buildings
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Buildings.ToListAsync());
+            return View(await _buildingsservice.Buildings.ToListAsync());
         }
 
         // GET: Buildings/Details/5
@@ -32,7 +32,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var buildings = await _context.Buildings
+            var buildings = await _buildingsservice.Buildings
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (buildings == null)
             {
@@ -57,8 +57,8 @@ namespace KooliProjekt.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(buildings);
-                await _context.SaveChangesAsync();
+                _buildingsservice.Add(buildings);
+                await _buildingsservice.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
             return View(buildings);
@@ -72,7 +72,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var buildings = await _context.Buildings.FindAsync(id);
+            var buildings = await _buildingsservice.Buildings.FindAsync(id);
             if (buildings == null)
             {
                 return NotFound();
@@ -96,8 +96,8 @@ namespace KooliProjekt.Controllers
             {
                 try
                 {
-                    _context.Update(buildings);
-                    await _context.SaveChangesAsync();
+                    _buildingsservice.Update(buildings);
+                    await _buildingsservice.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -123,7 +123,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var buildings = await _context.Buildings
+            var buildings = await _buildingsservice.Buildings
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (buildings == null)
             {
@@ -138,19 +138,19 @@ namespace KooliProjekt.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var buildings = await _context.Buildings.FindAsync(id);
+            var buildings = await _buildingsservice.Buildings.FindAsync(id);
             if (buildings != null)
             {
-                _context.Buildings.Remove(buildings);
+                _buildingsservice.Buildings.Remove(buildings);
             }
 
-            await _context.SaveChangesAsync();
+            await _buildingsservice.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool BuildingsExists(int id)
         {
-            return _context.Buildings.Any(e => e.Id == id);
+            return _buildingsservice.Buildings.Any(e => e.Id == id);
         }
     }
 }

@@ -72,33 +72,33 @@ namespace KooliProjekt.Data
 
         }
 
-        public static void GenerateServices(ApplicationDbContext context)
+        public static void GenerateService(ApplicationDbContext context)
         {
 
 
-            if (context.Services.Any())
+            if (context.Service.Any())
             {
                 Console.WriteLine("Teenused on juba olemas.");
                 return;
             }
 
 
-            var services = new List<Services>
+            var service = new List<Service>
     {
-        new Services { Name = "Digging", Unit = "1", UnitCost = 800, Provider = "Digging.CO"},
-        new Services { Name = "Landscaping", Unit = "1", UnitCost = 500, Provider = "GreenThumb Landscaping" },
-        new Services { Name = "Demolition", Unit = "1", UnitCost = 2000, Provider = "DemoMasters" },
-        new Services { Name = "Paving", Unit = "1", UnitCost = 1500, Provider = "PaveWay" },
-        new Services { Name = "Concrete Pouring", Unit = "1", UnitCost = 1000, Provider = "SolidPour" },
-        new Services { Name = "Hauling", Unit = "1", UnitCost = 600, Provider = "HaulAway" },
-        new Services { Name = "Site Preparation", Unit = "1", UnitCost = 1300, Provider = "PrepRight" },
-        new Services { Name = "Grading", Unit = "1", UnitCost = 1100, Provider = "GradeMaster" },
-        new Services { Name = "Excavation", Unit = "1", UnitCost = 1200, Provider = "ExcavationPro" },
-        new Services { Name = "Trenching", Unit = "1", UnitCost = 950, Provider = "TrenchPro" },
+        new Service { Name = "Digging", Unit = "1", UnitCost = 800, Provider = "Digging.CO"},
+        new Service { Name = "Landscaping", Unit = "1", UnitCost = 500, Provider = "GreenThumb Landscaping" },
+        new Service { Name = "Demolition", Unit = "1", UnitCost = 2000, Provider = "DemoMasters" },
+        new Service { Name = "Paving", Unit = "1", UnitCost = 1500, Provider = "PaveWay" },
+        new Service { Name = "Concrete Pouring", Unit = "1", UnitCost = 1000, Provider = "SolidPour" },
+        new Service { Name = "Hauling", Unit = "1", UnitCost = 600, Provider = "HaulAway" },
+        new Service { Name = "Site Preparation", Unit = "1", UnitCost = 1300, Provider = "PrepRight" },
+        new Service { Name = "Grading", Unit = "1", UnitCost = 1100, Provider = "GradeMaster" },
+        new Service { Name = "Excavation", Unit = "1", UnitCost = 1200, Provider = "ExcavationPro" },
+        new Service { Name = "Trenching", Unit = "1", UnitCost = 950, Provider = "TrenchPro" },
 
     };
 
-            context.Services.AddRange(services);
+            context.Service.AddRange(service);
 
 
             context.SaveChanges();

@@ -9,22 +9,22 @@ using KooliProjekt.Data;
 
 namespace KooliProjekt.Controllers
 {
-    public class ServicesController : Controller
+    public class ServiceController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ApplicationDbContext _servicesservice;
 
-        public ServicesController(ApplicationDbContext context)
+        public ServiceController(ApplicationDbContext context)
         {
-            _context = context;
+            _servicesservice = context;
         }
 
-        // GET: Services
+        // GET: Service
         public async Task<IActionResult> Index(int page = 1)
         {
-            return View(await _context.Services.GetPagedAsync(page, 5 ));
+            return View(await _servicesservice.Service.GetPagedAsync(page, 5 ));
         }
 
-        // GET: Services/Details/5
+        // GET: Service/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -32,14 +32,14 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var services = await _context.Services
+            var service = await _servicesservice.Service
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (services == null)
+            if (service == null)
             {
                 return NotFound();
             }
 
-            return View(services);
+            return View(service);
         }
 
         // GET: Services/Create
@@ -53,18 +53,18 @@ namespace KooliProjekt.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Unit,UnitCost,Provider")] Services services)
+        public async Task<IActionResult> Create([Bind("Id,Name,Unit,UnitCost,Provider")] Service service)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(services);
-                await _context.SaveChangesAsync();
+                _servicesservice.Add(service);
+                await _servicesservice.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(services);
+            return View(service);
         }
 
-        // GET: Services/Edit/5
+        // GET: Service/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -72,12 +72,12 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var services = await _context.Services.FindAsync(id);
-            if (services == null)
+            var service = await _servicesservice.Service.FindAsync(id);
+            if (service == null)
             {
                 return NotFound();
             }
-            return View(services);
+            return View(service);
         }
 
         // POST: Services/Edit/5
@@ -85,9 +85,9 @@ namespace KooliProjekt.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Unit,UnitCost,Provider")] Services services)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Unit,UnitCost,Provider")] Service service)
         {
-            if (id != services.Id)
+            if (id != service.Id)
             {
                 return NotFound();
             }
@@ -96,12 +96,12 @@ namespace KooliProjekt.Controllers
             {
                 try
                 {
-                    _context.Update(services);
-                    await _context.SaveChangesAsync();
+                    _servicesservice.Update(service);
+                    await _servicesservice.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ServicesExists(services.Id))
+                    if (!ServiceExists(service.Id))
                     {
                         return NotFound();
                     }
@@ -112,7 +112,7 @@ namespace KooliProjekt.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(services);
+            return View(service);
         }
 
         // GET: Services/Delete/5
@@ -123,14 +123,14 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var services = await _context.Services
+            var service = await _servicesservice.Service
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (services == null)
+            if (service == null)
             {
                 return NotFound();
             }
 
-            return View(services);
+            return View(service);
         }
 
         // POST: Services/Delete/5
@@ -138,19 +138,19 @@ namespace KooliProjekt.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var services = await _context.Services.FindAsync(id);
-            if (services != null)
+            var service = await _servicesservice.Service.FindAsync(id);
+            if (service != null)
             {
-                _context.Services.Remove(services);
+                _servicesservice.Service.Remove(service);
             }
 
-            await _context.SaveChangesAsync();
+            await _servicesservice.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool ServicesExists(int id)
+        private bool ServiceExists(int id)
         {
-            return _context.Services.Any(e => e.Id == id);
+            return _servicesservice.Service.Any(e => e.Id == id);
         }
     }
 }

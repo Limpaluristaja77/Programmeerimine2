@@ -11,17 +11,17 @@ namespace KooliProjekt.Controllers
 {
     public class PanelsController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ApplicationDbContext _panelsservice;
 
         public PanelsController(ApplicationDbContext context)
         {
-            _context = context;
+            _panelsservice = context;
         }
 
         // GET: Panels
         public async Task<IActionResult> Index(int page = 1)
         {
-            return View(await _context.Panels.GetPagedAsync(page, 5));
+            return View(await _panelsservice.Panels.GetPagedAsync(page, 5));
         }
 
         // GET: Panels/Details/5
@@ -32,7 +32,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var panels = await _context.Panels
+            var panels = await _panelsservice.Panels
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (panels == null)
             {
@@ -57,8 +57,8 @@ namespace KooliProjekt.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(panels);
-                await _context.SaveChangesAsync();
+                _panelsservice.Add(panels);
+                await _panelsservice.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
             return View(panels);
@@ -72,7 +72,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var panels = await _context.Panels.FindAsync(id);
+            var panels = await _panelsservice.Panels.FindAsync(id);
             if (panels == null)
             {
                 return NotFound();
@@ -96,8 +96,8 @@ namespace KooliProjekt.Controllers
             {
                 try
                 {
-                    _context.Update(panels);
-                    await _context.SaveChangesAsync();
+                    _panelsservice.Update(panels);
+                    await _panelsservice.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -123,7 +123,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var panels = await _context.Panels
+            var panels = await _panelsservice.Panels
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (panels == null)
             {
@@ -138,19 +138,19 @@ namespace KooliProjekt.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var panels = await _context.Panels.FindAsync(id);
+            var panels = await _panelsservice.Panels.FindAsync(id);
             if (panels != null)
             {
-                _context.Panels.Remove(panels);
+                _panelsservice.Panels.Remove(panels);
             }
 
-            await _context.SaveChangesAsync();
+            await _panelsservice.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool PanelsExists(int id)
         {
-            return _context.Panels.Any(e => e.Id == id);
+            return _panelsservice.Panels.Any(e => e.Id == id);
         }
     }
 }
