@@ -51,7 +51,7 @@ namespace KooliProjekt.Controllers
         {
             ViewData["BuildingsId"] = new SelectList(_budgetservice.Buildings, "Id", "Name");
             ViewData["ClientId"] = new SelectList(_budgetservice.Clients, "Id", "Name");
-            ViewData["ServicesId"] = new SelectList(_budgetservice.Service, "Id", "Name");
+            ViewData["ServicesId"] = new SelectList(_budgetservice.Services, "Id", "Name");
             return View();
         }
 
@@ -70,7 +70,7 @@ namespace KooliProjekt.Controllers
             }
             ViewData["BuildingsId"] = new SelectList(_budgetservice.Buildings, "Id", "Name", budget.BuildingsId);
             ViewData["ClientId"] = new SelectList(_budgetservice.Clients, "Id", "Name", budget.ClientId);
-            ViewData["ServicesId"] = new SelectList(_budgetservice.Service, "Id", "Name", budget.ServicesId);
+            ViewData["ServicesId"] = new SelectList(_budgetservice.Services, "Id", "Name", budget.ServicesId);
             return View(budget);
         }
 
@@ -89,7 +89,7 @@ namespace KooliProjekt.Controllers
             }
             ViewData["BuildingsId"] = new SelectList(_budgetservice.Buildings, "Id", "Name", budget.BuildingsId);
             ViewData["ClientId"] = new SelectList(_budgetservice.Clients, "Id", "Name", budget.ClientId);
-            ViewData["ServicesId"] = new SelectList(_budgetservice.Service, "Id", "Name", budget.ServicesId);
+            ViewData["ServicesId"] = new SelectList(_budgetservice.Services, "Id", "Name", budget.ServicesId);
             return View(budget);
         }
 
@@ -127,7 +127,7 @@ namespace KooliProjekt.Controllers
             }
             ViewData["BuildingsId"] = new SelectList(_budgetservice.Buildings, "Id", "Name", budget.BuildingsId);
             ViewData["ClientId"] = new SelectList(_budgetservice.Clients, "Id", "Name", budget.ClientId);
-            ViewData["ServicesId"] = new SelectList(_budgetservice.Service, "Id", "Name", budget.ServicesId);
+            ViewData["ServicesId"] = new SelectList(_budgetservice.Services, "Id", "Name", budget.ServicesId);
             return View(budget);
         }
 

@@ -15,7 +15,7 @@ namespace KooliProjekt.Data
         public DbSet<Client> Clients { get; set; } 
         public DbSet<Material> Materials { get; set; } 
         public DbSet<Panel> Panels { get; set; }
-        public DbSet<Service> Service { get; set; }
+        public DbSet<Service> Services { get; set; }
 
 
     }

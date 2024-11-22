@@ -40,14 +40,14 @@ namespace KooliProjekt
 
                 // Rakendame kõik migratsioonid, et andmebaas oleks ajakohane
 
-                context.Database.Migrate();  // Rakendab kõik migratsioonid, kui neid pole veel rakendatud
+                context.Database.EnsureCreated();  // Rakendab kõik migratsioonid, kui neid pole veel rakendatud
 
                 // Täiendame andmebaasi, kui see on tühi
 
                 SeedData.GenerateClients(context);
                 SeedData.GeneratePanels(context);
                 SeedData.GenerateMaterials(context);
-                SeedData.GenerateService(context);
+                SeedData.GenerateServices(context);
                 SeedData.GenerateBuildings(context);
                 SeedData.GenerateBudgets(context);
 

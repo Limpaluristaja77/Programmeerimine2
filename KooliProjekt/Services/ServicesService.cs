@@ -15,12 +15,12 @@ namespace KooliProjekt.Services
 
         public async Task<PagedResult<Service>> List(int page, int pageSize)
         {
-            return await _context.Service.GetPagedAsync(page, 5);
+            return await _context.Services.GetPagedAsync(page, 5);
         }
 
         public async Task<Service> Get(int id)
         {
-            return await _context.Service.FirstOrDefaultAsync(m => m.Id == id);
+            return await _context.Services.FirstOrDefaultAsync(m => m.Id == id);
         }
 
         public async Task Save(Service list)
@@ -39,10 +39,10 @@ namespace KooliProjekt.Services
 
         public async Task Delete(int id)
         {
-            var service = await _context.Service.FindAsync(id);
+            var service = await _context.Services.FindAsync(id);
             if (service != null)
             {
-                _context.Service.Remove(service);
+                _context.Services.Remove(service);
                 await _context.SaveChangesAsync();
             }
         }

@@ -21,7 +21,7 @@ namespace KooliProjekt.Controllers
         // GET: Service
         public async Task<IActionResult> Index(int page = 1)
         {
-            return View(await _servicesservice.Service.GetPagedAsync(page, 5 ));
+            return View(await _servicesservice.Services.GetPagedAsync(page, 5 ));
         }
 
         // GET: Service/Details/5
@@ -32,7 +32,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var service = await _servicesservice.Service
+            var service = await _servicesservice.Services
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (service == null)
             {
@@ -72,7 +72,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var service = await _servicesservice.Service.FindAsync(id);
+            var service = await _servicesservice.Services.FindAsync(id);
             if (service == null)
             {
                 return NotFound();
@@ -123,7 +123,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var service = await _servicesservice.Service
+            var service = await _servicesservice.Services
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (service == null)
             {
@@ -138,10 +138,10 @@ namespace KooliProjekt.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var service = await _servicesservice.Service.FindAsync(id);
+            var service = await _servicesservice.Services.FindAsync(id);
             if (service != null)
             {
-                _servicesservice.Service.Remove(service);
+                _servicesservice.Services.Remove(service);
             }
 
             await _servicesservice.SaveChangesAsync();
@@ -150,7 +150,7 @@ namespace KooliProjekt.Controllers
 
         private bool ServiceExists(int id)
         {
-            return _servicesservice.Service.Any(e => e.Id == id);
+            return _servicesservice.Services.Any(e => e.Id == id);
         }
     }
 }
