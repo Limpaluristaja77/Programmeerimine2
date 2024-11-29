@@ -2,7 +2,7 @@
 
 namespace KooliProjekt.Data
 {
-    public class Material
+    public class Material : Entity
     {
         [Required]
         public int Id { get; set; }

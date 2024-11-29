@@ -2,7 +2,7 @@
 
 namespace KooliProjekt.Data
 {
-    public class Budget
+    public class Budget : Entity
     {
         [Required]
         public int Id { get; set; }

@@ -1,5 +1,5 @@
 using KooliProjekt.Data;
-using KooliProjekt.Services;
+using KooliProjekt.Data.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,16 +17,18 @@ namespace KooliProjekt
                 options.UseSqlServer(connectionString));
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-            builder.Services.AddScoped<IBudgetService, BudgetService>();
-            builder.Services.AddScoped<IBuildingsService, BuildingsService>();
-            builder.Services.AddScoped<IPanelsService, PanelsService>();
-            builder.Services.AddScoped<IMaterialsService, MaterialsService>();
-            builder.Services.AddScoped<IClientService, ClientService>();
-            builder.Services.AddScoped<IServicesService, ServicesService>();
 
             builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             builder.Services.AddControllersWithViews();
+
+            builder.Services.AddScoped<IBudgetRepository, BudgetRepository>();
+            builder.Services.AddScoped<IBuildingsRepository, BuildingsRepository>();
+            builder.Services.AddScoped<IPanelsRepository, PanelsRepository>();
+            builder.Services.AddScoped<IMaterialsRepository, MaterialsRepository>();
+            builder.Services.AddScoped<IClientRepository, ClientRepository>();
+            builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             var app = builder.Build();
 

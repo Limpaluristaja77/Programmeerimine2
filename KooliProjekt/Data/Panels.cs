@@ -2,7 +2,7 @@
 
 namespace KooliProjekt.Data
 {
-    public class Panel
+    public class Panel : Entity
     {
         [Required]
         public int Id { get; set; }
