@@ -6,22 +6,26 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using KooliProjekt.Data;
+using KooliProjekt.Data.Repositories;
 
 namespace KooliProjekt.Controllers
 {
     public class MaterialsController : Controller
     {
-        private readonly ApplicationDbContext _materialsservice;
+        private readonly ApplicationDbContext _context;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public MaterialsController(ApplicationDbContext context)
+        public MaterialsController(ApplicationDbContext context,
+            IUnitOfWork unitOfWork)
         {
-            _materialsservice = context;
+            _context = context;
+            _unitOfWork = unitOfWork;
         }
 
         // GET: Materials
         public async Task<IActionResult> Index(int page = 1)
         {
-            return View(await _materialsservice.Materials.GetPagedAsync(page, 5));
+            return View(await _context.Materials.GetPagedAsync(page, 5));
         }
 
         // GET: Materials/Details/5
@@ -32,7 +36,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var materials = await _materialsservice.Materials
+            var materials = await _context.Materials
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (materials == null)
             {
@@ -57,8 +61,23 @@ namespace KooliProjekt.Controllers
         {
             if (ModelState.IsValid)
             {
-                _materialsservice.Add(materials);
-                await _materialsservice.SaveChangesAsync();
+
+
+                await _unitOfWork.BeginTransaction();
+                try
+                {
+                    await _unitOfWork.MaterialsRepository.Save(materials);
+
+
+
+                    await _unitOfWork.Commit();
+                }
+                catch
+                {
+                    await _unitOfWork.Rollback();
+                    throw;
+                }
+
                 return RedirectToAction(nameof(Index));
             }
             return View(materials);
@@ -72,7 +91,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var materials = await _materialsservice.Materials.FindAsync(id);
+            var materials = await _context.Materials.FindAsync(id);
             if (materials == null)
             {
                 return NotFound();
@@ -96,8 +115,8 @@ namespace KooliProjekt.Controllers
             {
                 try
                 {
-                    _materialsservice.Update(materials);
-                    await _materialsservice.SaveChangesAsync();
+                    _context.Update(materials);
+                    await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -123,7 +142,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var materials = await _materialsservice.Materials
+            var materials = await _context.Materials
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (materials == null)
             {
@@ -138,19 +157,19 @@ namespace KooliProjekt.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var materials = await _materialsservice.Materials.FindAsync(id);
+            var materials = await _context.Materials.FindAsync(id);
             if (materials != null)
             {
-                _materialsservice.Materials.Remove(materials);
+                _context.Materials.Remove(materials);
             }
 
-            await _materialsservice.SaveChangesAsync();
+            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool MaterialsExists(int id)
         {
-            return _materialsservice.Materials.Any(e => e.Id == id);
+            return _context.Materials.Any(e => e.Id == id);
         }
     }
 }

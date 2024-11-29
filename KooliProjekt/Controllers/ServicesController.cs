@@ -6,22 +6,26 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using KooliProjekt.Data;
+using KooliProjekt.Data.Repositories;
 
 namespace KooliProjekt.Controllers
 {
     public class ServiceController : Controller
     {
-        private readonly ApplicationDbContext _servicesservice;
+        private readonly ApplicationDbContext _context;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public ServiceController(ApplicationDbContext context)
+        public ServiceController(ApplicationDbContext context,
+            IUnitOfWork unitOfWork)
         {
-            _servicesservice = context;
+            _context = context;
+            _unitOfWork = unitOfWork;   
         }
 
         // GET: Service
         public async Task<IActionResult> Index(int page = 1)
         {
-            return View(await _servicesservice.Services.GetPagedAsync(page, 5 ));
+            return View(await _context.Services.GetPagedAsync(page, 5 ));
         }
 
         // GET: Service/Details/5
@@ -32,7 +36,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var service = await _servicesservice.Services
+            var service = await _context.Services
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (service == null)
             {
@@ -57,8 +61,23 @@ namespace KooliProjekt.Controllers
         {
             if (ModelState.IsValid)
             {
-                _servicesservice.Add(service);
-                await _servicesservice.SaveChangesAsync();
+
+
+                await _unitOfWork.BeginTransaction();
+                try
+                {
+                    await _unitOfWork.ServiceRepository.Save(service);
+
+
+
+                    await _unitOfWork.Commit();
+                }
+                catch
+                {
+                    await _unitOfWork.Rollback();
+                    throw;
+                }
+
                 return RedirectToAction(nameof(Index));
             }
             return View(service);
@@ -72,7 +91,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var service = await _servicesservice.Services.FindAsync(id);
+            var service = await _context.Services.FindAsync(id);
             if (service == null)
             {
                 return NotFound();
@@ -96,8 +115,8 @@ namespace KooliProjekt.Controllers
             {
                 try
                 {
-                    _servicesservice.Update(service);
-                    await _servicesservice.SaveChangesAsync();
+                    _context.Update(service);
+                    await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -123,7 +142,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var service = await _servicesservice.Services
+            var service = await _context.Services
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (service == null)
             {
@@ -138,19 +157,19 @@ namespace KooliProjekt.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var service = await _servicesservice.Services.FindAsync(id);
+            var service = await _context.Services.FindAsync(id);
             if (service != null)
             {
-                _servicesservice.Services.Remove(service);
+                _context.Services.Remove(service);
             }
 
-            await _servicesservice.SaveChangesAsync();
+            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool ServiceExists(int id)
         {
-            return _servicesservice.Services.Any(e => e.Id == id);
+            return _context.Services.Any(e => e.Id == id);
         }
     }
 }

@@ -6,22 +6,26 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using KooliProjekt.Data;
+using KooliProjekt.Data.Repositories;
 
 namespace KooliProjekt.Controllers
 {
     public class BuildingsController : Controller
     {
-        private readonly ApplicationDbContext _buildingsservice;
+        private readonly ApplicationDbContext _context;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public BuildingsController(ApplicationDbContext context)
+        public BuildingsController(ApplicationDbContext context,
+            IUnitOfWork unitOfWork)
         {
-            _buildingsservice = context;
+            _context = context;
+            _unitOfWork = unitOfWork;
         }
 
         // GET: Buildings
         public async Task<IActionResult> Index()
         {
-            return View(await _buildingsservice.Buildings.ToListAsync());
+            return View(await _context.Buildings.ToListAsync());
         }
 
         // GET: Buildings/Details/5
@@ -32,7 +36,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var buildings = await _buildingsservice.Buildings
+            var buildings = await _context.Buildings
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (buildings == null)
             {
@@ -57,8 +61,23 @@ namespace KooliProjekt.Controllers
         {
             if (ModelState.IsValid)
             {
-                _buildingsservice.Add(buildings);
-                await _buildingsservice.SaveChangesAsync();
+
+
+                await _unitOfWork.BeginTransaction();
+                try
+                {
+                    await _unitOfWork.BuildingsRepository.Save(buildings);
+
+
+
+                    await _unitOfWork.Commit();
+                }
+                catch
+                {
+                    await _unitOfWork.Rollback();
+                    throw;
+                }
+
                 return RedirectToAction(nameof(Index));
             }
             return View(buildings);
@@ -72,7 +91,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var buildings = await _buildingsservice.Buildings.FindAsync(id);
+            var buildings = await _context.Buildings.FindAsync(id);
             if (buildings == null)
             {
                 return NotFound();
@@ -96,8 +115,8 @@ namespace KooliProjekt.Controllers
             {
                 try
                 {
-                    _buildingsservice.Update(buildings);
-                    await _buildingsservice.SaveChangesAsync();
+                    _context.Update(buildings);
+                    await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -123,7 +142,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var buildings = await _buildingsservice.Buildings
+            var buildings = await _context.Buildings
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (buildings == null)
             {
@@ -138,19 +157,19 @@ namespace KooliProjekt.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var buildings = await _buildingsservice.Buildings.FindAsync(id);
+            var buildings = await _context.Buildings.FindAsync(id);
             if (buildings != null)
             {
-                _buildingsservice.Buildings.Remove(buildings);
+                _context.Buildings.Remove(buildings);
             }
 
-            await _buildingsservice.SaveChangesAsync();
+            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool BuildingsExists(int id)
         {
-            return _buildingsservice.Buildings.Any(e => e.Id == id);
+            return _context.Buildings.Any(e => e.Id == id);
         }
     }
 }
