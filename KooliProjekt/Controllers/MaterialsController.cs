@@ -6,22 +6,26 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using KooliProjekt.Data;
+using KooliProjekt.Services;
+using KooliProjekt.Models;
 
 namespace KooliProjekt.Controllers
 {
     public class MaterialsController : Controller
     {
-        private readonly ApplicationDbContext _materialsservice;
+        private readonly IMaterialsService _materialsservice;
 
-        public MaterialsController(ApplicationDbContext context)
+        public MaterialsController(IMaterialsService materialsService)
         {
-            _materialsservice = context;
+            _materialsservice = materialsService;
         }
 
         // GET: Materials
-        public async Task<IActionResult> Index(int page = 1)
+        public async Task<IActionResult> Index(int page = 1, MaterialIndexModel model = null)
         {
-            return View(await _materialsservice.Materials.GetPagedAsync(page, 5));
+            model = model ?? new MaterialIndexModel();
+            model.Data = await _materialsservice.List(page, 5, model.Search);
+            return View(model);
         }
 
         // GET: Materials/Details/5
@@ -32,8 +36,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var materials = await _materialsservice.Materials
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var materials = await _materialsservice.Get(id.Value);
             if (materials == null)
             {
                 return NotFound();
@@ -57,8 +60,7 @@ namespace KooliProjekt.Controllers
         {
             if (ModelState.IsValid)
             {
-                _materialsservice.Add(materials);
-                await _materialsservice.SaveChangesAsync();
+                await _materialsservice.Save(materials);
                 return RedirectToAction(nameof(Index));
             }
             return View(materials);
@@ -72,7 +74,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var materials = await _materialsservice.Materials.FindAsync(id);
+            var materials = await _materialsservice.Get(id.Value);
             if (materials == null)
             {
                 return NotFound();
@@ -94,22 +96,7 @@ namespace KooliProjekt.Controllers
 
             if (ModelState.IsValid)
             {
-                try
-                {
-                    _materialsservice.Update(materials);
-                    await _materialsservice.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!MaterialsExists(materials.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                await _materialsservice.Save(materials);
                 return RedirectToAction(nameof(Index));
             }
             return View(materials);
@@ -123,8 +110,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var materials = await _materialsservice.Materials
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var materials = await _materialsservice.Get(id.Value);
             if (materials == null)
             {
                 return NotFound();
@@ -138,19 +124,9 @@ namespace KooliProjekt.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var materials = await _materialsservice.Materials.FindAsync(id);
-            if (materials != null)
-            {
-                _materialsservice.Materials.Remove(materials);
-            }
-
-            await _materialsservice.SaveChangesAsync();
+            await _materialsservice.Delete(id);
             return RedirectToAction(nameof(Index));
         }
 
-        private bool MaterialsExists(int id)
-        {
-            return _materialsservice.Materials.Any(e => e.Id == id);
-        }
     }
 }
