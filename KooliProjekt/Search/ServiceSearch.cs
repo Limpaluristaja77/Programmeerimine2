@@ -1,6 +1,6 @@
 ﻿namespace KooliProjekt.Search
 {
-    public class ClientSearch
+    public class ServiceSearch
     {
         public string Keyword { get; set; }
     }

@@ -1,4 +1,5 @@
 ﻿using KooliProjekt.Data;
+using KooliProjekt.Search;
 using Microsoft.EntityFrameworkCore;
 
 namespace KooliProjekt.Services
@@ -12,38 +13,50 @@ namespace KooliProjekt.Services
             _context = context;
         }
 
-        public async Task<PagedResult<Panel>> List(int page, int pageSize)
+        public async Task Delete(int id)
         {
-            return await _context.Panels.GetPagedAsync(page, 5);
+            await _context.Panels
+                .Where(list => list.Id == id)
+                .ExecuteDeleteAsync();
         }
 
         public async Task<Panel> Get(int id)
         {
-            return await _context.Panels.FirstOrDefaultAsync(m => m.Id == id);
+            return await _context.Panels.FindAsync(id);
         }
+
+        public async Task<PagedResult<Panel>> List(int page, int pageSize, PanelSearch search = null)
+        {
+            var query = _context.Panels.AsQueryable();
+
+            search = search ?? new PanelSearch();
+
+            if (!string.IsNullOrWhiteSpace(search.Keyword))
+            {
+                query = query.Where(list => list.Manufacturer.Contains(search.Keyword));
+            }
+
+            return await query
+                .OrderBy(list => list.Manufacturer)
+                .GetPagedAsync(page, pageSize);
+        }
+
+
 
         public async Task Save(Panel list)
         {
             if (list.Id == 0)
             {
-                _context.Add(list);
+                _context.Panels.Add(list);
             }
             else
             {
-                _context.Update(list);
+                _context.Panels.Update(list);
             }
 
             await _context.SaveChangesAsync();
         }
 
-        public async Task Delete(int id)
-        {
-            var panel = await _context.Panels.FindAsync(id);
-            if (panel != null)
-            {
-                _context.Panels.Remove(panel);
-                await _context.SaveChangesAsync();
-            }
-        }
+
     }
 }

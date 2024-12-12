@@ -6,22 +6,26 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using KooliProjekt.Data;
+using KooliProjekt.Services;
+using KooliProjekt.Models;
 
 namespace KooliProjekt.Controllers
 {
     public class PanelsController : Controller
     {
-        private readonly ApplicationDbContext _panelsservice;
+        private readonly IPanelsService _panelsservice;
 
-        public PanelsController(ApplicationDbContext context)
+        public PanelsController(IPanelsService panelsService)
         {
-            _panelsservice = context;
+            _panelsservice = panelsService;
         }
 
         // GET: Panels
-        public async Task<IActionResult> Index(int page = 1)
+        public async Task<IActionResult> Index(int page = 1, PanelIndexModel model = null)
         {
-            return View(await _panelsservice.Panels.GetPagedAsync(page, 5));
+            model = model ?? new PanelIndexModel();
+            model.Data = await _panelsservice.List(page, 5, model.Search);
+            return View(model);
         }
 
         // GET: Panels/Details/5
@@ -32,8 +36,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var panels = await _panelsservice.Panels
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var panels = await _panelsservice.Get(id.Value);
             if (panels == null)
             {
                 return NotFound();
@@ -57,8 +60,7 @@ namespace KooliProjekt.Controllers
         {
             if (ModelState.IsValid)
             {
-                _panelsservice.Add(panels);
-                await _panelsservice.SaveChangesAsync();
+                await _panelsservice.Save(panels);
                 return RedirectToAction(nameof(Index));
             }
             return View(panels);
@@ -72,7 +74,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var panels = await _panelsservice.Panels.FindAsync(id);
+            var panels = await _panelsservice.Get(id.Value);
             if (panels == null)
             {
                 return NotFound();
@@ -94,22 +96,7 @@ namespace KooliProjekt.Controllers
 
             if (ModelState.IsValid)
             {
-                try
-                {
-                    _panelsservice.Update(panels);
-                    await _panelsservice.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!PanelsExists(panels.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                await _panelsservice.Save(panels);
                 return RedirectToAction(nameof(Index));
             }
             return View(panels);
@@ -123,8 +110,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var panels = await _panelsservice.Panels
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var panels = await _panelsservice.Get(id.Value);
             if (panels == null)
             {
                 return NotFound();
@@ -138,19 +124,10 @@ namespace KooliProjekt.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var panels = await _panelsservice.Panels.FindAsync(id);
-            if (panels != null)
-            {
-                _panelsservice.Panels.Remove(panels);
-            }
-
-            await _panelsservice.SaveChangesAsync();
+            await _panelsservice.Delete(id);
             return RedirectToAction(nameof(Index));
+
         }
 
-        private bool PanelsExists(int id)
-        {
-            return _panelsservice.Panels.Any(e => e.Id == id);
-        }
     }
 }

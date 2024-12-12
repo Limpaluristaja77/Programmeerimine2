@@ -19,9 +19,10 @@ namespace KooliProjekt.Controllers
         }
 
         // GET: Buildings
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1)
         {
-            return View(await _buildingsservice.Buildings.ToListAsync());
+            var applicationDbContext = _buildingsservice.Buildings.Include(b => b.Materials).Include(b => b.Panels);
+            return View(await applicationDbContext.GetPagedAsync(page, 5));
         }
 
         // GET: Buildings/Details/5
@@ -33,6 +34,8 @@ namespace KooliProjekt.Controllers
             }
 
             var buildings = await _buildingsservice.Buildings
+                .Include(b => b.Materials)
+                .Include(b => b.Panels)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (buildings == null)
             {
@@ -45,6 +48,8 @@ namespace KooliProjekt.Controllers
         // GET: Buildings/Create
         public IActionResult Create()
         {
+            ViewData["MaterialId"] = new SelectList(_buildingsservice.Materials, "Id", "Name");
+            ViewData["PanelId"] = new SelectList(_buildingsservice.Panels, "Id", "Name");
             return View();
         }
 
@@ -61,6 +66,8 @@ namespace KooliProjekt.Controllers
                 await _buildingsservice.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["MaterialId"] = new SelectList(_buildingsservice.Materials, "Id", "Name", buildings.MaterialId);
+            ViewData["PanelId"] = new SelectList(_buildingsservice.Panels, "Id", "Name", buildings.PanelId);
             return View(buildings);
         }
 
@@ -77,6 +84,8 @@ namespace KooliProjekt.Controllers
             {
                 return NotFound();
             }
+            ViewData["MaterialId"] = new SelectList(_buildingsservice.Materials, "Id", "Name", buildings.MaterialId);
+            ViewData["PanelId"] = new SelectList(_buildingsservice.Panels, "Id", "Name", buildings.PanelId);
             return View(buildings);
         }
 
@@ -112,6 +121,8 @@ namespace KooliProjekt.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["MaterialId"] = new SelectList(_buildingsservice.Materials, "Id", "Name", buildings.MaterialId);
+            ViewData["PanelId"] = new SelectList(_buildingsservice.Panels, "Id", "Name", buildings.PanelId);
             return View(buildings);
         }
 
@@ -124,6 +135,8 @@ namespace KooliProjekt.Controllers
             }
 
             var buildings = await _buildingsservice.Buildings
+                .Include(b => b.Materials)
+                .Include(b => b.Panels)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (buildings == null)
             {

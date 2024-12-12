@@ -6,22 +6,26 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using KooliProjekt.Data;
+using KooliProjekt.Services;
+using KooliProjekt.Models;
 
 namespace KooliProjekt.Controllers
 {
     public class ServiceController : Controller
     {
-        private readonly ApplicationDbContext _servicesservice;
+        private readonly IServicesService _servicesservice;
 
-        public ServiceController(ApplicationDbContext context)
+        public ServiceController(IServicesService servicesService)
         {
-            _servicesservice = context;
+            _servicesservice = servicesService;
         }
 
         // GET: Service
-        public async Task<IActionResult> Index(int page = 1)
+        public async Task<IActionResult> Index(int page = 1, ServiceIndexModel model = null)
         {
-            return View(await _servicesservice.Services.GetPagedAsync(page, 5 ));
+            model = model ?? new ServiceIndexModel();
+            model.Data = await _servicesservice.List(page, 5, model.Search);
+            return View(model);
         }
 
         // GET: Service/Details/5
@@ -32,8 +36,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var service = await _servicesservice.Services
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var service = await _servicesservice.Get(id.Value);
             if (service == null)
             {
                 return NotFound();
@@ -57,8 +60,7 @@ namespace KooliProjekt.Controllers
         {
             if (ModelState.IsValid)
             {
-                _servicesservice.Add(service);
-                await _servicesservice.SaveChangesAsync();
+                await _servicesservice.Save(service);
                 return RedirectToAction(nameof(Index));
             }
             return View(service);
@@ -72,7 +74,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var service = await _servicesservice.Services.FindAsync(id);
+            var service = await _servicesservice.Get(id.Value);
             if (service == null)
             {
                 return NotFound();
@@ -94,22 +96,7 @@ namespace KooliProjekt.Controllers
 
             if (ModelState.IsValid)
             {
-                try
-                {
-                    _servicesservice.Update(service);
-                    await _servicesservice.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ServiceExists(service.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                await _servicesservice.Save(service);
                 return RedirectToAction(nameof(Index));
             }
             return View(service);
@@ -123,8 +110,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var service = await _servicesservice.Services
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var service = await _servicesservice.Get(id.Value);
             if (service == null)
             {
                 return NotFound();
@@ -138,19 +124,10 @@ namespace KooliProjekt.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var service = await _servicesservice.Services.FindAsync(id);
-            if (service != null)
-            {
-                _servicesservice.Services.Remove(service);
-            }
-
-            await _servicesservice.SaveChangesAsync();
+            await _servicesservice.Delete(id);
             return RedirectToAction(nameof(Index));
+
         }
 
-        private bool ServiceExists(int id)
-        {
-            return _servicesservice.Services.Any(e => e.Id == id);
-        }
     }
 }
