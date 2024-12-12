@@ -14,8 +14,5 @@ namespace KooliProjekt.Data
         public string PhoneNumber { get; set; }
 
 
-
-  
-
     }
 }

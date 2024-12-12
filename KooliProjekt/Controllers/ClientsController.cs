@@ -6,22 +6,27 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using KooliProjekt.Data;
+using KooliProjekt.Services;
+using KooliProjekt.Search;
+using KooliProjekt.Models;
 
 namespace KooliProjekt.Controllers
 {
     public class ClientsController : Controller
     {
-        private readonly ApplicationDbContext _clientservice;
+        private readonly IClientService _clientservice;
 
-        public ClientsController(ApplicationDbContext context)
+        public ClientsController(IClientService clientService)
         {
-            _clientservice = context;
+            _clientservice = clientService;
         }
 
         // GET: Clients
-        public async Task<IActionResult> Index(int page = 1)
+        public async Task<IActionResult> Index(int page = 1, ClientIndexModel model = null)
         {
-            return View(await _clientservice.Clients.GetPagedAsync(page, 5));
+            model = model ?? new ClientIndexModel();
+            model.Data = await _clientservice.List(page, 5, model.Search);
+            return View(model);
         }
 
         // GET: Clients/Details/5
@@ -32,8 +37,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var client = await _clientservice.Clients
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var client = await _clientservice.Get(id.Value);
             if (client == null)
             {
                 return NotFound();
@@ -57,8 +61,7 @@ namespace KooliProjekt.Controllers
         {
             if (ModelState.IsValid)
             {
-                _clientservice.Add(client);
-                await _clientservice.SaveChangesAsync();
+                await _clientservice.Save(client);
                 return RedirectToAction(nameof(Index));
             }
             return View(client);
@@ -72,7 +75,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var client = await _clientservice.Clients.FindAsync(id);
+            var client = await _clientservice.Get(id.Value);
             if (client == null)
             {
                 return NotFound();
@@ -94,22 +97,7 @@ namespace KooliProjekt.Controllers
 
             if (ModelState.IsValid)
             {
-                try
-                {
-                    _clientservice.Update(client);
-                    await _clientservice.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ClientExists(client.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                await _clientservice.Save(client);
                 return RedirectToAction(nameof(Index));
             }
             return View(client);
@@ -123,8 +111,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var client = await _clientservice.Clients
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var client = await _clientservice.Get(id.Value);
             if (client == null)
             {
                 return NotFound();
@@ -138,19 +125,11 @@ namespace KooliProjekt.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var client = await _clientservice.Clients.FindAsync(id);
-            if (client != null)
-            {
-                _clientservice.Clients.Remove(client);
-            }
-
-            await _clientservice.SaveChangesAsync();
+            await _clientservice.Delete(id);
             return RedirectToAction(nameof(Index));
+            
         }
 
-        private bool ClientExists(int id)
-        {
-            return _clientservice.Clients.Any(e => e.Id == id);
-        }
+        
     }
 }
