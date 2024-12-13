@@ -6,23 +6,26 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using KooliProjekt.Data;
+using KooliProjekt.Services;
+using KooliProjekt.Models;
 
 namespace KooliProjekt.Controllers
 {
     public class BuildingsController : Controller
     {
-        private readonly ApplicationDbContext _buildingsservice;
+        private readonly IBuildingsService _buildingsservice;
 
-        public BuildingsController(ApplicationDbContext context)
+        public BuildingsController(IBuildingsService buildingsService)
         {
-            _buildingsservice = context;
+            _buildingsservice = buildingsService;
         }
 
         // GET: Buildings
-        public async Task<IActionResult> Index(int page = 1)
+        public async Task<IActionResult> Index(int page = 1, BuildingIndexModel model = null)
         {
-            var applicationDbContext = _buildingsservice.Buildings.Include(b => b.Materials).Include(b => b.Panels);
-            return View(await applicationDbContext.GetPagedAsync(page, 5));
+            model = model ?? new BuildingIndexModel();
+            model.Data = await _buildingsservice.List(page, 5, model.Search);
+            return View(model);
         }
 
         // GET: Buildings/Details/5
@@ -33,10 +36,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var buildings = await _buildingsservice.Buildings
-                .Include(b => b.Materials)
-                .Include(b => b.Panels)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var buildings = await _buildingsservice.Get(id.Value);
             if (buildings == null)
             {
                 return NotFound();
@@ -48,8 +48,6 @@ namespace KooliProjekt.Controllers
         // GET: Buildings/Create
         public IActionResult Create()
         {
-            ViewData["MaterialId"] = new SelectList(_buildingsservice.Materials, "Id", "Name");
-            ViewData["PanelId"] = new SelectList(_buildingsservice.Panels, "Id", "Name");
             return View();
         }
 
@@ -62,12 +60,9 @@ namespace KooliProjekt.Controllers
         {
             if (ModelState.IsValid)
             {
-                _buildingsservice.Add(buildings);
-                await _buildingsservice.SaveChangesAsync();
+                await _buildingsservice.Save(buildings);
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["MaterialId"] = new SelectList(_buildingsservice.Materials, "Id", "Name", buildings.MaterialId);
-            ViewData["PanelId"] = new SelectList(_buildingsservice.Panels, "Id", "Name", buildings.PanelId);
             return View(buildings);
         }
 
@@ -79,13 +74,11 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var buildings = await _buildingsservice.Buildings.FindAsync(id);
+            var buildings = await _buildingsservice.Get(id.Value);
             if (buildings == null)
             {
                 return NotFound();
             }
-            ViewData["MaterialId"] = new SelectList(_buildingsservice.Materials, "Id", "Name", buildings.MaterialId);
-            ViewData["PanelId"] = new SelectList(_buildingsservice.Panels, "Id", "Name", buildings.PanelId);
             return View(buildings);
         }
 
@@ -103,26 +96,9 @@ namespace KooliProjekt.Controllers
 
             if (ModelState.IsValid)
             {
-                try
-                {
-                    _buildingsservice.Update(buildings);
-                    await _buildingsservice.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!BuildingsExists(buildings.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                await _buildingsservice.Save(buildings);
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["MaterialId"] = new SelectList(_buildingsservice.Materials, "Id", "Name", buildings.MaterialId);
-            ViewData["PanelId"] = new SelectList(_buildingsservice.Panels, "Id", "Name", buildings.PanelId);
             return View(buildings);
         }
 
@@ -134,10 +110,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var buildings = await _buildingsservice.Buildings
-                .Include(b => b.Materials)
-                .Include(b => b.Panels)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var buildings = await _buildingsservice.Get(id.Value);
             if (buildings == null)
             {
                 return NotFound();
@@ -151,19 +124,9 @@ namespace KooliProjekt.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var buildings = await _buildingsservice.Buildings.FindAsync(id);
-            if (buildings != null)
-            {
-                _buildingsservice.Buildings.Remove(buildings);
-            }
-
-            await _buildingsservice.SaveChangesAsync();
+            await _buildingsservice.Delete(id);
             return RedirectToAction(nameof(Index));
         }
 
-        private bool BuildingsExists(int id)
-        {
-            return _buildingsservice.Buildings.Any(e => e.Id == id);
-        }
     }
 }
