@@ -9,6 +9,7 @@ using KooliProjekt.Controllers;
 using Xunit;
 using KooliProjekt.Data;
 using Microsoft.AspNetCore.Mvc;
+using KooliProjekt.Models;
 
 
 namespace KooliProjekt.UnitTests.ControllerTests
@@ -31,10 +32,10 @@ namespace KooliProjekt.UnitTests.ControllerTests
             // Arrange
             int page = 1;
             var data = new List<Panel>
-            {
-                new Panel { Id = 1, Name = "LePanel", Unit = "30", UnitCost = 200, Manufacturer = "Tahiti White" },
-                new Panel { Id = 2, Name = "Panel", Unit = "30", UnitCost = 200, Manufacturer = "Panhop White" }
-            };
+    {
+        new Panel { Id = 1, Name = "LePanel", Unit = "30", UnitCost = 200, Manufacturer = "Tahiti White" },
+        new Panel { Id = 2, Name = "Panel", Unit = "30", UnitCost = 200, Manufacturer = "Panhop White" }
+    };
             var pagedResult = new PagedResult<Panel> { Results = data };
             _panelsServiceMock.Setup(x => x.List(page, It.IsAny<int>(), null)).ReturnsAsync(pagedResult);
 
@@ -43,9 +44,12 @@ namespace KooliProjekt.UnitTests.ControllerTests
 
             // Assert
             Assert.NotNull(result);
-            Assert.Equal(pagedResult, result.Model);
 
-
+            var model = result.Model as PanelIndexModel;
+            Assert.NotNull(model);
+            Assert.Equal(2, model.Data.Count()); 
+            Assert.Equal("LePanel", model.Data.First().Name); 
         }
+
     }
 }
