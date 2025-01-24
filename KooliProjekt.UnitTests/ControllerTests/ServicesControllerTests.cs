@@ -113,6 +113,56 @@ namespace KooliProjekt.UnitTests.ControllerTests
             );
         }
         [Fact]
+        public async Task Create_model_state_is_valid_redirects_to_index()
+        {
+            // Arrange
+            var services = new Service
+            {
+                Id = 1,
+                Name = "Titty",
+                Unit = "1",
+                UnitCost = 400,
+                Provider = "Thai LadyBoy"
+            };
+
+            _servicesServiceMock.Setup(service => service.Save(services));
+
+            var controller = new ServiceController(_servicesServiceMock.Object);
+
+            // Act
+            var result = await controller.Create(services);
+
+            // Assert
+            var redirectResult = Assert.IsType<RedirectToActionResult>(result);
+            Assert.Equal("Index", redirectResult.ActionName);
+        }
+
+        [Fact]
+        public async Task Create_model_state_is_invalid_returns_view_with_model()
+        {
+            // Arrange
+            var service = new Service
+            {
+                Id = 1,
+                Name = "",
+                Unit = "1",
+                UnitCost = 150,
+                Provider = "ChingChong"
+            };
+
+            var _servicesServiceMock= new Mock<IServicesService>();
+            var _controller = new ServiceController(_servicesServiceMock.Object);
+            _controller.ModelState.AddModelError("Name", "Name is required.");
+
+            // Act
+            var result = await _controller.Create(service);
+
+            // Assert
+            var viewResult = Assert.IsType<ViewResult>(result);
+            Assert.Equal(service, viewResult.Model);
+        }
+
+        [Fact]
         public async Task Edit_should_return_notfound_when_id_is_missing()
         {
             // Arrange
@@ -124,6 +174,7 @@ namespace KooliProjekt.UnitTests.ControllerTests
             // Assert
             Assert.NotNull(result);
         }
+
         [Fact]
         public async Task Edit_should_return_notfound_when_list_is_missing()
         {
@@ -161,6 +212,69 @@ namespace KooliProjekt.UnitTests.ControllerTests
             );
             Assert.Equal(list, result.Model);
         }
+
+        [Fact]
+        public async Task Edit_should_return_notfound_when_id_mismatches()
+        {
+            // Arrange
+            int id = 1;
+            var serviceToEdit = new Service { Id = 2 };
+
+            // Act
+            var result = await _controller.Edit(id, serviceToEdit);
+
+            // Assert
+            Assert.IsType<NotFoundResult>(result);
+        }
+
+        [Fact]
+        public async Task Edit_should_return_view_when_model_state_is_invalid()
+        {
+            // Arrange
+            int serviceId = 1;
+            var invalidService = new Service
+            {
+                Id = serviceId,
+                Name = "",
+                Unit = "1",
+                UnitCost = 150,
+                Provider = "Black Man"
+            };
+
+            _controller.ModelState.AddModelError("Name", "Name is required");
+
+            // Act
+            var result = await _controller.Edit(serviceId, invalidService) as ViewResult;
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(invalidService, result.Model);
+            Assert.False(result.ViewData.ModelState.IsValid);
+        }
+
+        [Fact]
+        public async Task Edit_should_save_and_redirect_when_model_is_valid()
+        {
+            // Arrange
+            int serviceId = 1;
+            var serviceToEdit = new Service
+            {
+                Id = serviceId,
+                Name = "Happy Ending",
+                Unit = "1",
+                UnitCost = 500,
+                Provider = "Tahiti People"
+            };
+            _servicesServiceMock.Setup(service => service.Save(serviceToEdit));
+
+            // Act
+            var result = await _controller.Edit(serviceId, serviceToEdit) as RedirectToActionResult;
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal("Index", result.ActionName);
+        }
+
         [Fact]
         public async Task Delete_should_return_notfound_when_id_is_missing()
         {
@@ -211,6 +325,21 @@ namespace KooliProjekt.UnitTests.ControllerTests
             );
             Assert.Equal(list, result.Model);
         }
+        [Fact]
+        public async Task DeleteConfirmed_deletes_panel_redirects_to_index()
+        {
+            // Arrange
+            int serviceId = 1;
+            _servicesServiceMock.Setup(service => service.Delete(serviceId)).Verifiable();
+
+            // Act
+            var result = await _controller.DeleteConfirmed(serviceId) as RedirectToActionResult;
+
+            // Assert
+            Assert.NotNull(result);
+            _servicesServiceMock.VerifyAll();
+        }
+
 
     }
 }

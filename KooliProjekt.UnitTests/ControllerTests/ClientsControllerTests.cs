@@ -112,6 +112,50 @@ namespace KooliProjekt.UnitTests.ControllerTests
                 result.ViewName == "Create"
             );
         }
+
+        [Fact]
+        public async Task Create_model_state_is_valid_redirects_to_index()
+        {
+            // Arrange
+            var client = new Client
+            {
+                Id = 1,
+                Name = "Katty",
+            };
+
+            _clientsServiceMock.Setup(service => service.Save(client));
+
+            var controller = new ClientsController(_clientsServiceMock.Object);
+
+            // Act
+            var result = await controller.Create(client);
+
+            // Assert
+            var redirectResult = Assert.IsType<RedirectToActionResult>(result);
+            Assert.Equal("Index", redirectResult.ActionName);
+        }
+
+        [Fact]
+        public async Task Create_model_state_is_invalid_returns_view_with_model()
+        {
+            // Arrange
+            var client = new Client
+            {
+                Id = 1,
+                Name = "",
+            };
+
+            var _clientsServiceMock = new Mock<IClientService>();
+            var _controller = new ClientsController(_clientsServiceMock.Object);
+            _controller.ModelState.AddModelError("Name", "Name is required.");
+
+            // Act
+            var result = await _controller.Create(client);
+
+            // Assert
+            var viewResult = Assert.IsType<ViewResult>(result);
+            Assert.Equal(client, viewResult.Model);
+        }
         [Fact]
         public async Task Edit_should_return_notfound_when_id_is_missing()
         {
@@ -124,6 +168,66 @@ namespace KooliProjekt.UnitTests.ControllerTests
             // Assert
             Assert.NotNull(result);
         }
+
+        [Fact]
+        public async Task Edit_should_return_notfound_when_id_mismatches()
+        {
+            // Arrange
+            int id = 1;
+            var clientToEdit = new Client { Id = 2 };
+
+            // Act
+            var result = await _controller.Edit(id, clientToEdit);
+
+            // Assert
+            Assert.IsType<NotFoundResult>(result);
+        }
+
+        [Fact]
+        public async Task Edit_should_return_view_when_model_state_is_invalid()
+        {
+            // Arrange
+            int clientId = 1;
+            var invalidClient = new Client
+            {
+                Id = clientId,
+                Name = "",
+           
+            };
+
+            _controller.ModelState.AddModelError("Name", "Name is required");
+
+            // Act
+            var result = await _controller.Edit(clientId, invalidClient) as ViewResult;
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(invalidClient, result.Model);
+            Assert.False(result.ViewData.ModelState.IsValid);
+        }
+
+        [Fact]
+        public async Task Edit_should_save_and_redirect_when_model_is_valid()
+        {
+            // Arrange
+            int clientId = 1;
+            var clientToEdit = new Client
+            {
+                Id = clientId,
+                Name = "Happy Ending",
+
+            };
+            _clientsServiceMock.Setup(service => service.Save(clientToEdit));
+
+            // Act
+            var result = await _controller.Edit(clientId, clientToEdit) as RedirectToActionResult;
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal("Index", result.ActionName);
+        }
+
+
         [Fact]
         public async Task Edit_should_return_notfound_when_list_is_missing()
         {
@@ -210,6 +314,21 @@ namespace KooliProjekt.UnitTests.ControllerTests
                 result.ViewName == "Delete"
             );
             Assert.Equal(list, result.Model);
+        }
+
+        [Fact]
+        public async Task DeleteConfirmed_deletes_panel_redirects_to_index()
+        {
+            // Arrange
+            int clientId = 1;
+            _clientsServiceMock.Setup(service => service.Delete(clientId)).Verifiable();
+
+            // Act
+            var result = await _controller.DeleteConfirmed(clientId) as RedirectToActionResult;
+
+            // Assert
+            Assert.NotNull(result);
+            _clientsServiceMock.VerifyAll();
         }
 
     }

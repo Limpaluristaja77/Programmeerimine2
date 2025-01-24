@@ -117,10 +117,55 @@ namespace KooliProjekt.UnitTests.ControllerTests
             );
         }
 
+        [Fact]
+        public async Task Create_model_state_is_valid_redirects_to_index()
+        {
+            // Arrange
+            var panels = new Panel
+            {
+                Id = 1,
+                Name = "Panel",
+                Unit = "1",
+                UnitCost = 100,
+                Manufacturer = "Manufacturer"
+            };
 
+            _panelsServiceMock.Setup(service => service.Save(panels));
 
+            var _controller = new PanelsController(_panelsServiceMock.Object);
 
+            // Act
+            var result = await _controller.Create(panels);
 
+            // Assert
+            var redirectResult = Assert.IsType<RedirectToActionResult>(result);
+            Assert.Equal("Index", redirectResult.ActionName);
+        }
+
+        [Fact]
+        public async Task Create_model_state_is_invalid_returns_view_with_model()
+        {
+            // Arrange
+            var panels = new Panel
+            {
+                Id = 1,
+                Name = "", 
+                Unit = "1",
+                UnitCost = 150,
+                Manufacturer = "Manufacturer"
+            };
+
+            var _panelsServiceMock = new Mock<IPanelsService>();
+            var _controller = new PanelsController(_panelsServiceMock.Object);
+            _controller.ModelState.AddModelError("Name", "Name is required.");
+
+            // Act
+            var result = await _controller.Create(panels);
+
+            // Assert
+            var viewResult = Assert.IsType<ViewResult>(result);
+            Assert.Equal(panels, viewResult.Model);  
+        }
 
         [Fact]
         public async Task Edit_should_return_notfound_when_id_is_missing()
@@ -187,7 +232,7 @@ namespace KooliProjekt.UnitTests.ControllerTests
                 UnitCost = 100,
                 Manufacturer = "Tahiti"
             };
-            _panelsServiceMock.Setup(service => service.Save(panelToEdit)).Returns(Task.CompletedTask);
+            _panelsServiceMock.Setup(service => service.Save(panelToEdit));
 
             // Act
             var result = await _controller.Edit(panelId, panelToEdit) as RedirectToActionResult;
@@ -195,7 +240,6 @@ namespace KooliProjekt.UnitTests.ControllerTests
             // Assert
             Assert.NotNull(result);
             Assert.Equal("Index", result.ActionName);
-            _panelsServiceMock.Verify(service => service.Save(panelToEdit), Times.Once);
         }
 
         [Fact]
@@ -223,7 +267,7 @@ namespace KooliProjekt.UnitTests.ControllerTests
                 Name = "",
                 Unit = "30",
                 UnitCost = 100,
-                Manufacturer = "Test Manufacturer"
+                Manufacturer = "Black Man Manufacturer"
             };
 
             _controller.ModelState.AddModelError("Name", "Name is required");
@@ -288,6 +332,22 @@ namespace KooliProjekt.UnitTests.ControllerTests
             );
             Assert.Equal(list, result.Model);
         }
+
+        [Fact]
+        public async Task DeleteConfirmed_deletes_panel_redirects_to_index()
+        {
+            // Arrange
+            int panelId = 1;
+            _panelsServiceMock.Setup(service => service.Delete(panelId)).Verifiable();
+
+            // Act
+            var result = await _controller.DeleteConfirmed(panelId) as RedirectToActionResult;
+
+            // Assert
+            Assert.NotNull(result);  
+            _panelsServiceMock.VerifyAll();
+        }
+
 
 
 

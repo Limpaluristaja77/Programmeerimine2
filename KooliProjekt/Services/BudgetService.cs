@@ -1,4 +1,5 @@
 ﻿using KooliProjekt.Data;
+using KooliProjekt.Search;
 using Microsoft.EntityFrameworkCore;
 
 namespace KooliProjekt.Services
@@ -12,38 +13,50 @@ namespace KooliProjekt.Services
             _context = context;
         }
 
-        public async Task<PagedResult<Budget>> List(int page, int pageSize)
+        public async Task Delete(int id)
         {
-            return await _context.Budgets.GetPagedAsync(page, 5);
+            await _context.Budgets
+                .Where(list => list.Id == id)
+                .ExecuteDeleteAsync();
         }
 
         public async Task<Budget> Get(int id)
         {
-            return await _context.Budgets.FirstOrDefaultAsync(m => m.Id == id);
+            return await _context.Budgets.FindAsync(id);
         }
+
+        public async Task<PagedResult<Budget>> List(int page, int pageSize, BudgetSearch search = null)
+        {
+            var query = _context.Budgets.AsQueryable();
+
+            search = search ?? new BudgetSearch();
+
+            if (!string.IsNullOrWhiteSpace(search.Keyword))
+            {
+                query = query.Where(list => list.ClientId.ToString().Contains(search.Keyword));
+            }
+
+            return await query
+                .OrderBy(list => list.ClientId)
+                .GetPagedAsync(page, pageSize);
+        }
+
+
 
         public async Task Save(Budget list)
         {
             if (list.Id == 0)
             {
-                _context.Add(list);
+                _context.Budgets.Add(list);
             }
             else
             {
-                _context.Update(list);
+                _context.Budgets.Update(list);
             }
 
             await _context.SaveChangesAsync();
         }
 
-        public async Task Delete(int id)
-        {
-            var budget = await _context.Budgets.FindAsync(id);
-            if (budget != null)
-            {
-                _context.Budgets.Remove(budget);
-                await _context.SaveChangesAsync();
-            }
-        }
+
     }
 }

@@ -6,23 +6,26 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using KooliProjekt.Data;
+using KooliProjekt.Services;
+using KooliProjekt.Models;
 
 namespace KooliProjekt.Controllers
 {
     public class BudgetsController : Controller
     {
-        private readonly ApplicationDbContext _budgetservice;
+        private readonly IBudgetService _budgetservice;
 
-        public BudgetsController(ApplicationDbContext context)
+        public BudgetsController(IBudgetService budgetService)
         {
-            _budgetservice = context;
+            _budgetservice = budgetService;
         }
 
         // GET: Budgets
-        public async Task<IActionResult> Index(int page = 1)
+        public async Task<IActionResult> Index(int page = 1, BudgetIndexModel model = null)
         {
-            var applicationDbContext = _budgetservice.Budgets.Include(b => b.Buildings).Include(b => b.Client).Include(b => b.Services);
-            return View(await applicationDbContext.GetPagedAsync(page ,5));
+            model = model ?? new BudgetIndexModel();
+            model.Data = await _budgetservice.List(page, 5, model.Search);
+            return View(model);
         }
 
         // GET: Budgets/Details/5
@@ -33,11 +36,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var budget = await _budgetservice.Budgets
-                .Include(b => b.Buildings)
-                .Include(b => b.Client)
-                .Include(b => b.Services)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var budget = await _budgetservice.Get(id.Value);
             if (budget == null)
             {
                 return NotFound();
@@ -49,9 +48,6 @@ namespace KooliProjekt.Controllers
         // GET: Budgets/Create
         public IActionResult Create()
         {
-            ViewData["BuildingsId"] = new SelectList(_budgetservice.Buildings, "Id", "Name");
-            ViewData["ClientId"] = new SelectList(_budgetservice.Clients, "Id", "Name");
-            ViewData["ServicesId"] = new SelectList(_budgetservice.Services, "Id", "Name");
             return View();
         }
 
@@ -64,13 +60,10 @@ namespace KooliProjekt.Controllers
         {
             if (ModelState.IsValid)
             {
-                _budgetservice.Add(budget);
-                await _budgetservice.SaveChangesAsync();
+                
+                await _budgetservice.Save(budget);
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["BuildingsId"] = new SelectList(_budgetservice.Buildings, "Id", "Name", budget.BuildingsId);
-            ViewData["ClientId"] = new SelectList(_budgetservice.Clients, "Id", "Name", budget.ClientId);
-            ViewData["ServicesId"] = new SelectList(_budgetservice.Services, "Id", "Name", budget.ServicesId);
             return View(budget);
         }
 
@@ -82,14 +75,11 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var budget = await _budgetservice.Budgets.FindAsync(id);
+            var budget = await _budgetservice.Get(id.Value);
             if (budget == null)
             {
                 return NotFound();
             }
-            ViewData["BuildingsId"] = new SelectList(_budgetservice.Buildings, "Id", "Name", budget.BuildingsId);
-            ViewData["ClientId"] = new SelectList(_budgetservice.Clients, "Id", "Name", budget.ClientId);
-            ViewData["ServicesId"] = new SelectList(_budgetservice.Services, "Id", "Name", budget.ServicesId);
             return View(budget);
         }
 
@@ -107,27 +97,9 @@ namespace KooliProjekt.Controllers
 
             if (ModelState.IsValid)
             {
-                try
-                {
-                    _budgetservice.Update(budget);
-                    await _budgetservice.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!BudgetExists(budget.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                await _budgetservice.Save(budget);
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["BuildingsId"] = new SelectList(_budgetservice.Buildings, "Id", "Name", budget.BuildingsId);
-            ViewData["ClientId"] = new SelectList(_budgetservice.Clients, "Id", "Name", budget.ClientId);
-            ViewData["ServicesId"] = new SelectList(_budgetservice.Services, "Id", "Name", budget.ServicesId);
             return View(budget);
         }
 
@@ -139,11 +111,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var budget = await _budgetservice.Budgets
-                .Include(b => b.Buildings)
-                .Include(b => b.Client)
-                .Include(b => b.Services)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var budget = await _budgetservice.Get(id.Value);
             if (budget == null)
             {
                 return NotFound();
@@ -157,19 +125,8 @@ namespace KooliProjekt.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var budget = await _budgetservice.Budgets.FindAsync(id);
-            if (budget != null)
-            {
-                _budgetservice.Budgets.Remove(budget);
-            }
-
-            await _budgetservice.SaveChangesAsync();
+            await _budgetservice.Delete(id);
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool BudgetExists(int id)
-        {
-            return _budgetservice.Budgets.Any(e => e.Id == id);
         }
     }
 }
