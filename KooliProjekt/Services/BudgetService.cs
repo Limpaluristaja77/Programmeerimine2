@@ -37,6 +37,9 @@ namespace KooliProjekt.Services
             }
 
             return await query
+                .Include(list => list.Client)
+                .Include(list => list.Buildings)
+                .Include(list => list.Services)
                 .OrderBy(list => list.ClientId)
                 .GetPagedAsync(page, pageSize);
         }
