@@ -1,10 +1,8 @@
-﻿namespace KooliProjekt.Data.Repositories
+﻿
+
+namespace KooliProjekt.Data.Repositories
 {
-    public interface IMaterialsRepository
+    public interface IMaterialsRepository : IBaseRepository<Material>
     {
-        Task<Material> Get(int id);
-        Task<PagedResult<Material>> List(int page, int pageSize);
-        Task Save(Material item);
-        Task Delete(int id);
     }
 }

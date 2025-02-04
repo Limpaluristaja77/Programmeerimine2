@@ -1,12 +1,16 @@
 ﻿using KooliProjekt.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace KooliProjekt.Services
 {
     public interface IMaterialsService
     {
         Task<PagedResult<Material>> List(int page, int pageSize);
-        Task<Material> Get(int id);
-        Task Save(Material list);
-        Task Delete(int id);
+
+        Task Save(Material item);
+        Task Delete(int Id);
+
+        Task<Material> Get(int? Id);
+        Task<bool> Includes(int Id);
     }
 }

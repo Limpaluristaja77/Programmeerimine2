@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using static KooliProjekt.Data.Repositories.BuildingsRepository;
 
 namespace KooliProjekt.Data.Repositories
 {
@@ -8,15 +9,14 @@ namespace KooliProjekt.Data.Repositories
         {
         }
 
-        public override async Task<Buildings> Get(int id)
+        public Task Delete(int? id)
         {
-            return await DbContext.Buildings
-                .Include(list => list.MaterialId)
-                .Include(list => list.PanelId)
-                .Where(list => list.Id == id)
-                .FirstOrDefaultAsync();
+            throw new NotImplementedException();
+        }
 
-
+        public Task<Buildings> Get(int? id)
+        {
+            throw new NotImplementedException();
         }
     }
 }

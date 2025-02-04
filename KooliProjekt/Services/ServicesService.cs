@@ -1,4 +1,5 @@
 ﻿using KooliProjekt.Data;
+using KooliProjekt.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -6,46 +7,36 @@ namespace KooliProjekt.Services
 {
     public class ServicesService : IServicesService
     {
-        private readonly ApplicationDbContext _context;
-
-        public ServicesService(ApplicationDbContext context)
+        private readonly IUnitOfWork _uof;
+        public ServicesService(IUnitOfWork uof)
         {
-            _context = context;
+            _uof = uof;
         }
 
-        public async Task<PagedResult<Service>> List(int page, int pageSize)
+        public async Task<Service> Get(int? Id)
         {
-            return await _context.Services.GetPagedAsync(page, 5);
+            return await _uof.ServiceRepository.Get(Id);
         }
 
-        public async Task<Service> Get(int id)
+
+        public async Task<bool> Includes(int Id)
         {
-            return await _context.Services.FirstOrDefaultAsync(m => m.Id == id);
+            return await _uof.ServiceRepository.Includes(Id);
         }
 
-        public async Task Save(Service list)
+        public Task<PagedResult<Service>> List(int page, int pageSize)
         {
-            if (list.Id == 0)
-            {
-                _context.Add(list);
-            }
-            else
-            {
-                _context.Update(list);
-            }
-
-            await _context.SaveChangesAsync();
+            return _uof.ServiceRepository.List(page, pageSize);
         }
 
-        public async Task Delete(int id)
+        public async Task Save(Service item)
         {
-            var service = await _context.Services.FindAsync(id);
-            if (service != null)
-            {
-                _context.Services.Remove(service);
-                await _context.SaveChangesAsync();
-            }
+            await _uof.ServiceRepository.Save(item);
+        }
+        public async Task Delete(int Id)
+        {
+            await _uof.ServiceRepository.Delete(Id);
+
         }
     }
 }
-

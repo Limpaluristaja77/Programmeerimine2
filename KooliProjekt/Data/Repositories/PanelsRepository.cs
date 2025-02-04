@@ -1,4 +1,7 @@
-﻿namespace KooliProjekt.Data.Repositories
+﻿using Microsoft.EntityFrameworkCore;
+using static KooliProjekt.Data.Repositories.BuildingsRepository;
+
+namespace KooliProjekt.Data.Repositories
 {
     public class PanelsRepository : BaseRepository<Panel>, IPanelsRepository
     {
@@ -6,10 +9,14 @@
         {
         }
 
-        public override async Task<Panel> Get(int id)
+        public Task Delete(int? id)
         {
-            return await DbContext.Panels.FindAsync(id);
+            throw new NotImplementedException();
+        }
 
+        public Task<Panel> Get(int? id)
+        {
+            throw new NotImplementedException();
         }
     }
 }

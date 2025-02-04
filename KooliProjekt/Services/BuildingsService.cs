@@ -1,49 +1,50 @@
 ﻿using KooliProjekt.Data;
+using KooliProjekt.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
+
 
 namespace KooliProjekt.Services
 {
-    public class BuildingsService : IBuildingsService
+    public class BuildingsService : IBuidlingsService
     {
-        private readonly ApplicationDbContext _context;
-
-        public BuildingsService(ApplicationDbContext context)
+        private readonly IUnitOfWork _uof;
+        public BuildingsService(IUnitOfWork uof)
         {
-            _context = context;
+            _uof = uof;
         }
 
-        public async Task<PagedResult<Buildings>> List(int page, int pageSize)
+        public async Task<Buildings> Get(int? Id)
         {
-            return await _context.Buildings.GetPagedAsync(page, 5);
+            return await _uof.BuildingsRepository.Get(Id);
         }
 
-        public async Task<Buildings> Get(int id)
+        public async Task<DbSet<Panel>> GetPanelsAsync()
         {
-            return await _context.Buildings.FirstOrDefaultAsync(m => m.Id == id);
+            return await _uof.BuildingsRepository.GetAllPanels();
         }
 
-        public async Task Save(Buildings list)
+        public async Task<DbSet<Material>> GetMaterialsAsync()
         {
-            if (list.Id == 0)
-            {
-                _context.Add(list);
-            }
-            else
-            {
-                _context.Update(list);
-            }
-
-            await _context.SaveChangesAsync();
+            return await _uof.BuildingsRepository.GetAllMaterials();
+        }
+        public async Task<bool> Includes(int Id)
+        {
+            return await _uof.BuildingsRepository.Includes(Id);
         }
 
-        public async Task Delete(int id)
+        public Task<PagedResult<Buildings>> List(int page, int pageSize)
         {
-            var buildings = await _context.Buildings.FindAsync(id);
-            if (buildings != null)
-            {
-                _context.Buildings.Remove(buildings);
-                await _context.SaveChangesAsync();
-            }
+            return _uof.BuildingsRepository.List(page, pageSize);
+        }
+
+        public async Task Save(Buildings item)
+        {
+            await _uof.BuildingsRepository.Save(item);
+        }
+        public async Task Delete(int Id)
+        {
+            await _uof.BuildingsRepository.Delete(Id);
+
         }
     }
 }

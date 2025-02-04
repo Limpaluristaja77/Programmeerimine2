@@ -1,4 +1,7 @@
-﻿namespace KooliProjekt.Data.Repositories
+﻿using Microsoft.EntityFrameworkCore;
+using static KooliProjekt.Data.Repositories.BuildingsRepository;
+
+namespace KooliProjekt.Data.Repositories
 {
     public class ClientRepository : BaseRepository<Client>, IClientRepository
     {
@@ -6,9 +9,14 @@
         {
         }
 
-        public override async Task<Client> Get(int id)
+        public Task Delete(int? id)
         {
-            return await DbContext.Clients.FindAsync(id);
+            throw new NotImplementedException();
+        }
+
+        public Task<Client> Get(int? id)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -1,10 +1,8 @@
-﻿namespace KooliProjekt.Data.Repositories
+﻿
+
+namespace KooliProjekt.Data.Repositories
 {
-    public interface IBudgetRepository
+    public interface IBudgetRepository : IBaseRepository<Budget>
     {
-        Task<Budget> Get(int id);
-        Task<PagedResult<Budget>> List(int page, int pageSize);
-        Task Save(Budget item);
-        Task Delete(int id);
     }
 }

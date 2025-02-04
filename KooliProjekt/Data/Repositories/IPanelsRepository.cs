@@ -1,10 +1,8 @@
-﻿namespace KooliProjekt.Data.Repositories
+﻿
+
+namespace KooliProjekt.Data.Repositories
 {
-    public interface IPanelsRepository
+    public interface IPanelsRepository : IBaseRepository<Panel>
     {
-        Task<Panel> Get(int id);
-        Task<PagedResult<Panel>> List(int page, int pageSize);
-        Task Save(Panel item);
-        Task Delete(int id);
     }
 }

@@ -1,49 +1,42 @@
 ﻿using KooliProjekt.Data;
+using KooliProjekt.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
+
 
 namespace KooliProjekt.Services
 {
     public class PanelsService : IPanelsService
     {
-        private readonly ApplicationDbContext _context;
-
-        public PanelsService(ApplicationDbContext context)
+        private readonly IUnitOfWork _uof;
+        public PanelsService(IUnitOfWork uof)
         {
-            _context = context;
+            _uof = uof;
         }
 
-        public async Task<PagedResult<Panel>> List(int page, int pageSize)
+        public async Task<Panel> Get(int? Id)
         {
-            return await _context.Panels.GetPagedAsync(page, 5);
+            return await _uof.PanelsRepository.Get(Id);
         }
 
-        public async Task<Panel> Get(int id)
+
+        public async Task<bool> Includes(int Id)
         {
-            return await _context.Panels.FirstOrDefaultAsync(m => m.Id == id);
+            return await _uof.PanelsRepository.Includes(Id);
         }
 
-        public async Task Save(Panel list)
+        public Task<PagedResult<Panel>> List(int page, int pageSize)
         {
-            if (list.Id == 0)
-            {
-                _context.Add(list);
-            }
-            else
-            {
-                _context.Update(list);
-            }
-
-            await _context.SaveChangesAsync();
+            return _uof.PanelsRepository.List(page, pageSize);
         }
 
-        public async Task Delete(int id)
+        public async Task Save(Panel item)
         {
-            var panel = await _context.Panels.FindAsync(id);
-            if (panel != null)
-            {
-                _context.Panels.Remove(panel);
-                await _context.SaveChangesAsync();
-            }
+            await _uof.PanelsRepository.Save(item);
+        }
+        public async Task Delete(int Id)
+        {
+            await _uof.PanelsRepository.Delete(Id);
+
         }
     }
 }

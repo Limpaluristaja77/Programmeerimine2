@@ -1,49 +1,54 @@
 ﻿using KooliProjekt.Data;
+using KooliProjekt.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace KooliProjekt.Services
 {
     public class BudgetService : IBudgetService
     {
-        private readonly ApplicationDbContext _context;
-
-        public BudgetService(ApplicationDbContext context)
+        private readonly IUnitOfWork _uof;
+        public BudgetService(IUnitOfWork uof)
         {
-            _context = context;
+            _uof = uof;
         }
 
-        public async Task<PagedResult<Budget>> List(int page, int pageSize)
+        public async Task<Budget> Get(int? Id)
         {
-            return await _context.Budgets.GetPagedAsync(page, 5);
+            return await _uof.BudgetRepository.Get(Id);
         }
 
-        public async Task<Budget> Get(int id)
+        public async Task<DbSet<Buildings>> GetBuildingsAsync()
         {
-            return await _context.Budgets.FirstOrDefaultAsync(m => m.Id == id);
+            return await _uof.BudgetRepository.GetAllBuildings();
         }
 
-        public async Task Save(Budget list)
+        public async Task<DbSet<Client>> GetClientsAsync()
         {
-            if (list.Id == 0)
-            {
-                _context.Add(list);
-            }
-            else
-            {
-                _context.Update(list);
-            }
-
-            await _context.SaveChangesAsync();
+            return await _uof.BudgetRepository.GetAllClients();
         }
 
-        public async Task Delete(int id)
+        public async Task<DbSet<Service>> GetServicesAsync()
         {
-            var budget = await _context.Budgets.FindAsync(id);
-            if (budget != null)
-            {
-                _context.Budgets.Remove(budget);
-                await _context.SaveChangesAsync();
-            }
+            return await _uof.BudgetRepository.GetAllServices();
+        }
+        public async Task<bool> Includes(int Id)
+        {
+            return await _uof.BudgetRepository.Includes(Id);
+        }
+
+        public Task<PagedResult<Budget>> List(int page, int pageSize)
+        {
+            return _uof.BudgetRepository.List(page, pageSize);
+        }
+
+        public async Task Save(Budget item)
+        {
+            await _uof.BudgetRepository.Save(item);
+        }
+        public async Task Delete(int Id)
+        {
+            await _uof.BudgetRepository.Delete(Id);
+
         }
     }
 }

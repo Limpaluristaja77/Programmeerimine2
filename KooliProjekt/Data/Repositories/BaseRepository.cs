@@ -43,5 +43,43 @@ namespace KooliProjekt.Data.Repositories
                 .Where(item => item.Id == id)
                 .ExecuteDeleteAsync();
         }
+        public virtual async Task Delete(T t)
+        {
+            DbContext.Set<T>().Remove(t);
+            await DbContext.SaveChangesAsync();
+        }
+
+        public virtual async Task<bool> Includes(int Id)
+        {
+            return await DbContext.Set<T>().AnyAsync(x => x.Id == Id);
+        }
+
+        public virtual async Task<DbSet<Budget>> GetAllBudgets()
+        {
+            return DbContext.Budgets;
+        }
+
+        public virtual async Task<DbSet<Buildings>> GetAllBuildings()
+        {
+            return DbContext.Buildings;
+        }
+
+        public virtual async Task<DbSet<Client>> GetAllClients()
+        {
+            return DbContext.Clients;
+        }
+
+        public virtual async Task<DbSet<Service>> GetAllServices()
+        {
+            return DbContext.Services;
+        }
+        public virtual async Task<DbSet<Panel>> GetAllPanels()
+        {
+            return DbContext.Panels;
+        }
+        public virtual async Task<DbSet<Material>> GetAllMaterials()
+        {
+            return DbContext.Materials;
+        }
     }
 }

@@ -1,49 +1,42 @@
 ﻿using KooliProjekt.Data;
+using KooliProjekt.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
+
 
 namespace KooliProjekt.Services
 {
     public class MaterialsService : IMaterialsService
     {
-        private readonly ApplicationDbContext _context;
-
-        public MaterialsService(ApplicationDbContext context)
+        private readonly IUnitOfWork _uof;
+        public MaterialsService(IUnitOfWork uof)
         {
-            _context = context;
+            _uof = uof;
         }
 
-        public async Task<PagedResult<Material>> List(int page, int pageSize)
+        public async Task<Material> Get(int? Id)
         {
-            return await _context.Materials.GetPagedAsync(page, 5);
+            return await _uof.MaterialsRepository.Get(Id);
         }
 
-        public async Task<Material> Get(int id)
+
+        public async Task<bool> Includes(int Id)
         {
-            return await _context.Materials.FirstOrDefaultAsync(m => m.Id == id);
+            return await _uof.MaterialsRepository.Includes(Id);
         }
 
-        public async Task Save(Material list)
+        public Task<PagedResult<Material>> List(int page, int pageSize)
         {
-            if (list.Id == 0)
-            {
-                _context.Add(list);
-            }
-            else
-            {
-                _context.Update(list);
-            }
-
-            await _context.SaveChangesAsync();
+            return _uof.MaterialsRepository.List(page, pageSize);
         }
 
-        public async Task Delete(int id)
+        public async Task Save(Material item)
         {
-            var material = await _context.Materials.FindAsync(id);
-            if (material != null)
-            {
-                _context.Materials.Remove(material);
-                await _context.SaveChangesAsync();
-            }
+            await _uof.MaterialsRepository.Save(item);
+        }
+        public async Task Delete(int Id)
+        {
+            await _uof.MaterialsRepository.Delete(Id);
+
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using static KooliProjekt.Data.Repositories.BudgetRepository;
 
 namespace KooliProjekt.Data.Repositories
 {
@@ -8,16 +9,14 @@ namespace KooliProjekt.Data.Repositories
         {
         }
 
-        public override async Task<Budget> Get(int id)
+        Task IBaseRepository<Budget>.Delete(int? id)
         {
-            return await DbContext.Budgets
-                .Include(list => list.BuildingsId)
-                .Include(list => list.ClientId)
-                .Include(list => list.ServicesId)
-                .Where(list => list.Id == id)
-                .FirstOrDefaultAsync();
+            throw new NotImplementedException();
+        }
 
-
+        Task<Budget> IBaseRepository<Budget>.Get(int? id)
+        {
+            throw new NotImplementedException();
         }
     }
 }

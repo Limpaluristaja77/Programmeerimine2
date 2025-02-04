@@ -1,10 +1,8 @@
-﻿namespace KooliProjekt.Data.Repositories
+﻿
+
+namespace KooliProjekt.Data.Repositories
 {
-    public interface IBuildingsRepository
+    public interface IBuildingsRepository : IBaseRepository<Buildings>
     {
-        Task<Buildings> Get(int id);
-        Task<PagedResult<Buildings>> List(int page, int pageSize);
-        Task Save(Buildings item);
-        Task Delete(int id);
     }
 }
