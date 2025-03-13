@@ -8,12 +8,12 @@ using Xunit;
 namespace KooliProjekt.IntegrationTests
 {
     [Collection("Sequential")]
-    public class PanelControllerTests : TestBase
+    public class ClientControllerTests : TestBase
     {
         private readonly HttpClient _client;
         private readonly ApplicationDbContext _context;
 
-        public PanelControllerTests()
+        public ClientControllerTests()
         {
             _client = Factory.CreateClient();
             _context = (ApplicationDbContext)Factory.Services.GetService(typeof(ApplicationDbContext));
@@ -25,7 +25,7 @@ namespace KooliProjekt.IntegrationTests
             // Arrange
 
             // Act
-            using var response = await _client.GetAsync("/Panels");
+            using var response = await _client.GetAsync("/Clients");
 
             // Assert
             response.EnsureSuccessStatusCode();
@@ -37,7 +37,7 @@ namespace KooliProjekt.IntegrationTests
             // Arrange
 
             // Act
-            using var response = await _client.GetAsync("/Panels/Details/100");
+            using var response = await _client.GetAsync("/Clients/Details/100");
 
             // Assert
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
@@ -49,7 +49,7 @@ namespace KooliProjekt.IntegrationTests
             // Arrange
 
             // Act
-            using var response = await _client.GetAsync("/Panels/Details/");
+            using var response = await _client.GetAsync("/Clients/Details/");
 
             // Assert
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
@@ -59,12 +59,12 @@ namespace KooliProjekt.IntegrationTests
         public async Task Details_should_return_ok_when_list_was_found()
         {
             // Arrange
-            var list = new Panel {Name = "Le panel", Manufacturer = "ChingChang", Unit = "1", UnitCost = 121 };
-            _context.Panels.Add(list);
+            var list = new Client { Name = "Jessica The Whale", PhoneNumber = "696969"};
+            _context.Clients.Add(list);
             _context.SaveChanges();
 
             // Act
-            using var response = await _client.GetAsync("/Panels/Details/" + list.Id);
+            using var response = await _client.GetAsync("/Clients/Details/" + list.Id);
 
             // Assert
             response.EnsureSuccessStatusCode();
