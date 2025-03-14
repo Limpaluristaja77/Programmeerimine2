@@ -104,10 +104,11 @@ namespace KooliProjekt.IntegrationTests
         {
             // Arrange
             var formValues = new Dictionary<string, string>();
-            formValues.Add("Id", "1");
+            formValues.Add("Id", "");
             formValues.Add("Name", "Test");
-            formValues.Add("Manufacturer", "Sigma");
+            formValues.Add("Manufacturer", "OK");
             formValues.Add("Unit", "1");
+            formValues.Add("UnitCost", "1");
 
 
             using var content = new FormUrlEncodedContent(formValues);
