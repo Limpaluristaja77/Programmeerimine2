@@ -1,9 +1,14 @@
-﻿using System.Net;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using KooliProjekt.Data;
 using KooliProjekt.IntegrationTests.Helpers;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
+
 
 namespace KooliProjekt.IntegrationTests
 {
@@ -15,7 +20,12 @@ namespace KooliProjekt.IntegrationTests
 
         public PanelControllerTests()
         {
-            _client = Factory.CreateClient();
+
+            var options = new WebApplicationFactoryClientOptions
+            {
+                AllowAutoRedirect = false
+            };
+            _client = Factory.CreateClient(options);
             _context = (ApplicationDbContext)Factory.Services.GetService(typeof(ApplicationDbContext));
         }
 
@@ -68,6 +78,72 @@ namespace KooliProjekt.IntegrationTests
 
             // Assert
             response.EnsureSuccessStatusCode();
+        }
+
+        [Theory]
+        [InlineData("/Panels/Details")]
+        [InlineData("/Panels/Details/100")]
+        [InlineData("/Panels/Delete")]
+        [InlineData("/Panels/Delete/100")]
+        [InlineData("/Panels/Edit")]
+        [InlineData("/Panels/Edit/100")]
+        public async Task Should_return_notfound(string url)
+        {
+            // Arrange
+
+            // Act
+            using var response = await _client.GetAsync(url);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        }
+
+
+        [Fact]
+        public async Task Create_should_save_new_list()
+        {
+            // Arrange
+            var formValues = new Dictionary<string, string>();
+            formValues.Add("Id", "1");
+            formValues.Add("Name", "Test");
+            formValues.Add("Manufacturer", "Sigma");
+            formValues.Add("Unit", "1");
+
+
+            using var content = new FormUrlEncodedContent(formValues);
+
+            // Act
+            using var response = await _client.PostAsync("/Panels/Create", content);
+
+            // Assert
+            Assert.True(
+                response.StatusCode == HttpStatusCode.Redirect ||
+                response.StatusCode == HttpStatusCode.MovedPermanently);
+
+            var list = _context.Panels.FirstOrDefault();
+            Assert.NotNull(list);
+            Assert.NotEqual(0, list.Id);
+            Assert.Equal("Test", list.Name);
+        }
+
+        [Fact]
+        public async Task Create_should_not_save_invalid_new_list()
+        {
+            // Arrange
+            var formValues = new Dictionary<string, string>();
+            formValues.Add("Id", "");
+            formValues.Add("Name", "");
+            formValues.Add("Manufacturer", "");
+            formValues.Add("Unit", "");
+
+            using var content = new FormUrlEncodedContent(formValues);
+
+            // Act
+            using var response = await _client.PostAsync("/Panels/Create", content);
+
+            // Assert
+            response.EnsureSuccessStatusCode();
+            Assert.False(_context.Panels.Any());
         }
     }
 }
