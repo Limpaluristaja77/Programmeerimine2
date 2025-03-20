@@ -55,8 +55,8 @@ namespace KooliProjekt.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Unit,UnitCost,Provider")] Service service)
+        //[ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(Service service)
         {
             if (ModelState.IsValid)
             {

@@ -104,7 +104,6 @@ namespace KooliProjekt.IntegrationTests
         {
             // Arrange
             var formValues = new Dictionary<string, string>();
-            formValues.Add("Id", "");
             formValues.Add("Name", "Test");
             formValues.Add("Manufacturer", "OK");
             formValues.Add("Unit", "1");
