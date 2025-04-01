@@ -131,6 +131,7 @@ namespace KooliProjekt.IntegrationTests
             formValues.Add("BuildingsId", "");
             formValues.Add("ClientId", "");
             formValues.Add("ServicesId", "");
+            formValues.Add("Date", "");
 
             using var content = new FormUrlEncodedContent(formValues);
 
