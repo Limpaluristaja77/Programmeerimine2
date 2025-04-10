@@ -11,6 +11,7 @@ namespace KooliProjekt.WpfApp
         public ICommand SaveCommand { get; private set; }
         public ICommand DeleteCommand { get; private set; }
         public Predicate<Panel> ConfirmDelete { get; set; }
+        public Action<string> OnError { get; set; }
 
         private readonly IApiClient _apiClient;
 
@@ -50,10 +51,10 @@ namespace KooliProjekt.WpfApp
                 // Execute
                 async list =>
                 {
-                    if(ConfirmDelete != null)
+                    if (ConfirmDelete != null)
                     {
                         var result = ConfirmDelete(SelectedItem);
-                        if(!result)
+                        if (!result)
                         {
                             return;
                         }
@@ -76,7 +77,18 @@ namespace KooliProjekt.WpfApp
             Lists.Clear();
 
             var lists = await _apiClient.List();
-            foreach(var list in lists)
+
+            if (lists.HasError)
+            {
+                if (OnError != null)
+                {
+                    OnError(lists.Error);
+                }
+
+                return;
+            }
+
+            foreach (var list in lists.Value)
             {
                 Lists.Add(list);
             }

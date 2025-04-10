@@ -3,7 +3,7 @@
     public interface IApiClient
     {
         Task<Result<List<Panel>>> List();
-        Task Save(Panel list);
-        Task Delete(int id);
+        Task<Result>Save(Panel list);
+        Task<Result>Delete(int id);
     }
 }

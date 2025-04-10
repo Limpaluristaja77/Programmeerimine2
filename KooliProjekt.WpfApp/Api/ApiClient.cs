@@ -30,8 +30,9 @@ namespace KooliProjekt.WpfApp.Api
             return result;
         }
 
-        public async Task Save(Panel list)
+        public async Task<Result> Save(Panel list)
         {
+            var result = new Result();
 
             try
             {
@@ -48,22 +49,25 @@ namespace KooliProjekt.WpfApp.Api
             }
             catch(Exception ex)
             {
-
+                result.Error = ex.Message;
             }
+            return result;
 
         }
 
-        public async Task Delete(int id)
+        public async Task<Result> Delete(int id)
         {
+            var result = new Result();
             try
             {
                 await _httpClient.DeleteAsync("Panels/" + id);
 
             }
             catch (Exception ex)
-            { 
-                
+            {
+                result.Error = ex.Message;
             }
+            return result;
         }
     }
 }

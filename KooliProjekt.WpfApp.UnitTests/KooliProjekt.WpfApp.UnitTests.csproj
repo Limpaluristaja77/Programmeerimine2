@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\Downloads\KooliProjekt.WpfApp-AddNew\KooliProjekt.WpfApp\KooliProjekt.WpfApp.csproj" />
+    <ProjectReference Include="..\KooliProjekt.WpfApp\KooliProjekt.WpfApp.csproj" />
   </ItemGroup>
 
   <ItemGroup>
