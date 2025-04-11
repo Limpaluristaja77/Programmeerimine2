@@ -20,6 +20,20 @@ namespace KooliProjekt.WinFormsApp
         {
             // Küsi kustutamise kinnitust
             // Kui vastus oli "Yes", siis kustuta element ja lae andmed uuesti
+
+            var confirmationResult = MessageBox.Show("Are you sure?","Wish to delete?",MessageBoxButtons.YesNo,MessageBoxIcon.Warning);
+
+           
+            if (confirmationResult == DialogResult.Yes)
+            {
+                
+
+
+            }
+
+
+
+
         }
 
         private void SaveButton_Click(object? sender, EventArgs e)
@@ -29,6 +43,9 @@ namespace KooliProjekt.WinFormsApp
             //  - kui IDField ei ole tühi, siis küsi käesolev objekt gridi käest
             // Salvesta API kaudu
             // Lae andmed API-st uuesti
+
+
+            
         }
 
         private void NewButton_Click(object? sender, EventArgs e)
