@@ -1,10 +1,95 @@
-
+using System;
+using System.Windows.Forms;
 using KooliProjekt.WinFormsApp.Api;
 
 namespace KooliProjekt.WinFormsApp
 {
-    public partial class Form1 : Form
+    public partial class Form1 : Form, IPanelView
     {
+        public IList<Api.Panel> Panels 
+        {
+            get
+            {
+                return (IList<Api.Panel>)PanelsGrid.DataSource;
+            }
+            set
+            {
+                PanelsGrid.DataSource = value;
+            }
+        }
+
+        public Api.Panel SelectedItem { get; set; }
+
+        public PanelPresenter Presenter { get; set; }
+
+        public string Manufacturer
+        {
+            get
+            {
+                return ManufacturerField.Text; ;
+            }
+            set
+            {
+                ManufacturerField.Text = value;
+            }
+        }
+        public decimal UnitCost
+        {
+            get
+            {
+
+                decimal result;
+                if (decimal.TryParse(UnitCostField.Text, out result))
+                {
+                    return result;
+                }
+                else
+                {
+
+                    return 0;
+                }
+            }
+            set
+            {
+
+                UnitCostField.Text = value.ToString();
+            }
+        }
+        public string Unit
+        {
+            get
+            {
+                return UnitField.Text; ;
+            }
+            set
+            {
+                UnitField.Text = value;
+            }
+        }
+
+        public string Name
+        {
+            get
+            {
+                return NameField.Text; ;
+            }
+            set
+            {
+                NameField.Text = value;
+            }
+        }
+
+        public int Id
+        {
+            get
+            {
+                return int.Parse(IdField.Text);
+            }
+            set
+            {
+                IdField.Text = value.ToString();
+            }
+        }
         public Form1()
         {
             InitializeComponent();
@@ -14,9 +99,11 @@ namespace KooliProjekt.WinFormsApp
             NewButton.Click += NewButton_Click;
             SaveButton.Click += SaveButton_Click;
             DeleteButton.Click += DeleteButton_Click;
+            
+
         }
 
-        private void DeleteButton_Click(object? sender, EventArgs e)
+        private async void DeleteButton_Click(object? sender, EventArgs e)
         {
             // Küsi kustutamise kinnitust
             // Kui vastus oli "Yes", siis kustuta element ja lae andmed uuesti
@@ -27,13 +114,7 @@ namespace KooliProjekt.WinFormsApp
             if (confirmationResult == DialogResult.Yes)
             {
                 
-
-
             }
-
-
-
-
         }
 
         private void SaveButton_Click(object? sender, EventArgs e)
