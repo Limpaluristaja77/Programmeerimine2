@@ -15,7 +15,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KooliProjekt.WpfApp.UnitTes
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KooliProjekt.WinFormsApp", "KooliProjekt.WinFormsApp\KooliProjekt.WinFormsApp\KooliProjekt.WinFormsApp.csproj", "{5D639A20-BE45-44C7-8FEF-C86DF3E5147D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorApp", "BlazorApp\BlazorApp.csproj", "{A2DBF6E8-BC71-4E98-AC2E-64CBF53B97EA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorApp", "BlazorApp\BlazorApp.csproj", "{A2DBF6E8-BC71-4E98-AC2E-64CBF53B97EA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PublicApi", "PublicApi\PublicApi.csproj", "{47C1FF4F-BFAE-4DB2-8B0D-EC0CA256EBB1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +53,10 @@ Global
 		{A2DBF6E8-BC71-4E98-AC2E-64CBF53B97EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A2DBF6E8-BC71-4E98-AC2E-64CBF53B97EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A2DBF6E8-BC71-4E98-AC2E-64CBF53B97EA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{47C1FF4F-BFAE-4DB2-8B0D-EC0CA256EBB1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{47C1FF4F-BFAE-4DB2-8B0D-EC0CA256EBB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{47C1FF4F-BFAE-4DB2-8B0D-EC0CA256EBB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{47C1FF4F-BFAE-4DB2-8B0D-EC0CA256EBB1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

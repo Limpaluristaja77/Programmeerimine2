@@ -1,7 +1,57 @@
 ﻿@page "/"
+@inject HttpClient Http
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Panels</PageTitle>
 
-<h1>Hello, world!</h1>
+<h1>Panels</h1>
 
-Welcome to your new app.
+<p>Here are the panels.</p>
+
+@if (panels == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Unit</th>
+                <th>UnitCost</th>
+                <th>Manufacturer</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var panel in panels)
+            {
+                <tr>
+                    <td>@panel.Name</td>
+                    <td>@panel.Unit</td>
+                    <td>@panel.UnitCost</td>
+                    <td>@panel.Manufacturer</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private Panel[]? panels;
+
+    protected override async Task OnInitializedAsync()
+    {
+        panels = await Http.GetFromJsonAsync<Panel[]>("/Panels");
+    }
+
+    public class Panel
+    {
+        public string Name { get; set; }
+
+        public string Unit { get; set; }
+
+        public decimal UnitCost { get; set; }
+
+        public string Manufacturer { get; set; }
+    }
+}
