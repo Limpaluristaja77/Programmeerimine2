@@ -1,4 +1,7 @@
-﻿using KooliProjekt.WinFormsApp.Api;
+﻿using KooliProjekt.WinFormsApp;
+using KooliProjekt.PublicApi;
+using KooliProjekt.PublicApi.Api;
+
 
 namespace KooliProjekt.WinFormsApp
 {
@@ -15,7 +18,7 @@ namespace KooliProjekt.WinFormsApp
             panelView.Presenter = this;
         }
 
-        public void UpdateView(Api.Panel list)
+        public void UpdateView(KooliProjekt.PublicApi.Api.Panel list)
         {
             if (list == null)
             {

@@ -1,5 +1,5 @@
 ﻿@page "/"
-@inject HttpClient Http
+@inherits KooliProjekt.BlazorApp.Pages.Home
 
 <PageTitle>Panels</PageTitle>
 
@@ -13,6 +13,7 @@
 }
 else
 {
+    <p><a class="btn btn-primary" href="/create">Add new</a></p>
     <table class="table">
         <thead>
             <tr>
@@ -30,28 +31,13 @@ else
                     <td>@panel.Unit</td>
                     <td>@panel.UnitCost</td>
                     <td>@panel.Manufacturer</td>
+                    <td>
+                        <a href="/edit/@panel.Id" class="btn btn-primary">Edit</a>
+                        <button class="btn btn-primary" @onclick="() => Delete(panel.Id)">Delete</button>
+                    </td>
                 </tr>
             }
         </tbody>
     </table>
 }
 
-@code {
-    private Panel[]? panels;
-
-    protected override async Task OnInitializedAsync()
-    {
-        panels = await Http.GetFromJsonAsync<Panel[]>("/Panels");
-    }
-
-    public class Panel
-    {
-        public string Name { get; set; }
-
-        public string Unit { get; set; }
-
-        public decimal UnitCost { get; set; }
-
-        public string Manufacturer { get; set; }
-    }
-}

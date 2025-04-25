@@ -1,16 +1,17 @@
+using KooliProjekt.PublicApi.Api;
 using System;
 using System.Windows.Forms;
-using KooliProjekt.WinFormsApp.Api;
+
 
 namespace KooliProjekt.WinFormsApp
 {
     public partial class Form1 : Form, IPanelView
     {
-        public IList<Api.Panel> Panels 
+        public IList<KooliProjekt.PublicApi.Api.Panel> Panels 
         {
             get
             {
-                return (IList<Api.Panel>)PanelsGrid.DataSource;
+                return (IList<KooliProjekt.PublicApi.Api.Panel>)PanelsGrid.DataSource;
             }
             set
             {
@@ -18,7 +19,7 @@ namespace KooliProjekt.WinFormsApp
             }
         }
 
-        public Api.Panel SelectedItem { get; set; }
+        public KooliProjekt.PublicApi.Api.Panel SelectedItem { get; set; }
 
         public PanelPresenter Presenter { get; set; }
 
@@ -90,6 +91,12 @@ namespace KooliProjekt.WinFormsApp
                 IdField.Text = value.ToString();
             }
         }
+
+        System.Windows.Forms.Panel IPanelView.SelectedItem 
+        {
+            get; set;
+        }
+
         public Form1()
         {
             InitializeComponent();
@@ -146,7 +153,7 @@ namespace KooliProjekt.WinFormsApp
                 return;
             }
 
-            var panel = (Api.Panel)PanelsGrid.SelectedRows[0].DataBoundItem;
+            var panel = (KooliProjekt.PublicApi.Api.Panel)PanelsGrid.SelectedRows[0].DataBoundItem;
 
             if(panel == null)
             {

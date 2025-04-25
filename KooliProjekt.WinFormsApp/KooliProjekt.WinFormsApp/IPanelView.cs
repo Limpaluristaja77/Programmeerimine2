@@ -1,11 +1,10 @@
-﻿using KooliProjekt.WinFormsApp.Api;
-
+﻿
 namespace KooliProjekt.WinFormsApp
 {
     public interface IPanelView
     {
-        IList<Api.Panel> Panels { get; set; }
-        Api.Panel SelectedItem { get; set; }
+        IList<KooliProjekt.PublicApi.Api.Panel> Panels { get; set; }
+        Panel SelectedItem { get; set; }
         string Manufacturer { get; set; }
         decimal UnitCost { get; set; }
         string Unit {  get; set; }

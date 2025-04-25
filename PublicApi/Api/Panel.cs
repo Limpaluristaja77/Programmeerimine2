@@ -1,4 +1,4 @@
-﻿namespace KooliProjekt.PublicApi
+﻿namespace KooliProjekt.PublicApi.Api
 {
     public class Panel
     {

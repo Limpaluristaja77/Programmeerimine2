@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
-using KooliProjekt.WpfApp.Api;
+using KooliProjekt.PublicApi.Api;
+using KooliProjekt.WpfApp;
 
 namespace KooliProjekt.WpfApp
 {
@@ -10,7 +11,7 @@ namespace KooliProjekt.WpfApp
         public ICommand NewCommand { get; private set; }
         public ICommand SaveCommand { get; private set; }
         public ICommand DeleteCommand { get; private set; }
-        public Predicate<Panel> ConfirmDelete { get; set; }
+        public Predicate<KooliProjekt.PublicApi.Api.Panel> ConfirmDelete { get; set; }
         public Action<string> OnError { get; set; }
 
         private readonly IApiClient _apiClient;
