@@ -1,1 +1,70 @@
-﻿
+﻿@page "/create"
+@page "/edit/{Id:int}"
+
+@inject IApiClient apiClient
+@inject NavigationManager NavManager
+
+<h3>@title Panel</h3>
+
+<EditForm Model="@panel" OnSubmit="@FormSubmitted">
+    <div class="form-group row">
+        <label for="name" class="col-sm-2 col-form-label">Name</label>
+        <div class="col-sm-10">
+            <InputText id="name" class="form-control" placeholder="Name" @bind-Value="panel.Name" />
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <label for="unit" class="col-sm-2 col-form-label">Unit</label>
+        <div class="col-sm-10">
+            <InputText id="unit" class="form-control" placeholder="Unit" @bind-Value="panel.Unit" />
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <label for="unitCost" class="col-sm-2 col-form-label">Unit Cost</label>
+        <div class="col-sm-10">
+            <InputNumber id="unitCost" class="form-control" placeholder="Unit Cost" @bind-Value="panel.UnitCost" />
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <label for="manufacturer" class="col-sm-2 col-form-label">Manufacturer</label>
+        <div class="col-sm-10">
+            <InputText id="manufacturer" class="form-control" placeholder="Manufacturer" @bind-Value="panel.Manufacturer" />
+        </div>
+    </div>
+
+    <div class="form-group row" style="margin-top:20px">
+        <label class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-10">
+            <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private Panel panel = new Panel();
+    private string title = "Edit";
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id == 0)
+        {
+            title = "Add";
+            return;
+        }
+
+        var result = await apiClient.Get(Id);
+        panel = result.Value;
+    }
+
+    private async Task FormSubmitted()
+    {
+        await apiClient.Save(panel);
+        NavManager.NavigateTo("/");
+    }
+}
