@@ -35,7 +35,7 @@ namespace KooliProjekt.PublicApi.Api
 
         public async Task<Result<Panel>> Get(int id)
         {
-            var response = await _httpClient.GetFromJsonAsync<Panel>($"api/panels/{id}");
+            var response = await _httpClient.GetFromJsonAsync<Panel>($"Panels/{id}");
             return new Result<Panel> { Value = response };
         }
 
