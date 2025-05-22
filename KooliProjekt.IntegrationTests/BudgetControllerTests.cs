@@ -64,21 +64,40 @@ namespace KooliProjekt.IntegrationTests
             // Assert
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         }
-
         [Fact]
         public async Task Details_should_return_ok_when_list_was_found()
         {
             // Arrange
-            var list = new Budget {BuildingsId = 1, ClientId = 1, ServicesId = 1};
-            _context.Budgets.Add(list);
+            var material = new Material { Name = "Gong", Unit = "1", UnitCost = 100, Manufacturer = "Ling" };
+            var panel = new Panel { Name = "Gong", Unit = "1", UnitCost = 100, Manufacturer = "Ling" };
+            var building = new Buildings { Name = "Building", MaterialId = material.Id, PanelId = panel.Id };
+            var client = new Client { Name = "Client", PhoneNumber = "12345678" };
+            var service = new Service { Name = "Service", Provider = "gong", Unit = "1", UnitCost = 100 };
+
+            _context.Buildings.Add(building);
+            _context.Clients.Add(client);
+            _context.Services.Add(service);
+
+            var budget = new Budget
+            {
+                BuildingsId = building.Id,
+                ClientId = client.Id,
+                ServicesId = service.Id,
+                Buildings = building,
+                Client = client,
+                Services = service
+            };
+
+            _context.Budgets.Add(budget);
             _context.SaveChanges();
 
             // Act
-            using var response = await _client.GetAsync("/Budgets/Details/" + list.Id);
-
+            using var response = await _client.GetAsync("/Budgets/Details/" + budget.Id);
+            
             // Assert
             response.EnsureSuccessStatusCode();
         }
+
 
         [Theory]
         [InlineData("/Budgets/Details")]
@@ -103,11 +122,30 @@ namespace KooliProjekt.IntegrationTests
         public async Task Create_should_save_new_list()
         {
             // Arrange
-            var formValues = new Dictionary<string, string>();
-            formValues.Add("BuildingsId", "1");
-            formValues.Add("ClientId", "1");
-            formValues.Add("ServicesId", "1");
+            var material = new Material { Name = "Gong", Unit = "1", UnitCost = 100, Manufacturer = "Ling" };
+            var panel = new Panel { Name = "Gong", Unit = "1", UnitCost = 100, Manufacturer = "Ling" };
+            _context.Materials.Add(material);
+            _context.Panels.Add(panel);
+            await _context.SaveChangesAsync();
 
+            var building = new Buildings { Name = "Building", MaterialId = material.Id, PanelId = panel.Id };
+            _context.Buildings.Add(building);
+            await _context.SaveChangesAsync();
+
+            var client = new Client { Name = "Client", PhoneNumber = "12345678" };
+            _context.Clients.Add(client);
+
+            var service = new Service { Name = "Service", Provider = "gong", Unit = "1", UnitCost = 100 };
+            _context.Services.Add(service);
+            await _context.SaveChangesAsync();
+
+            var formValues = new Dictionary<string, string>
+            {
+               { "BuildingsId", building.Id.ToString() },
+               { "ClientId", client.Id.ToString() },
+               { "ServicesId", service.Id.ToString() },
+               { "Date", "2024-12-12" }
+            };
             using var content = new FormUrlEncodedContent(formValues);
 
             // Act
@@ -122,6 +160,7 @@ namespace KooliProjekt.IntegrationTests
             Assert.NotNull(list);
             Assert.NotEqual(0, list.Id);
         }
+
 
         [Fact]
         public async Task Create_should_not_save_invalid_new_list()

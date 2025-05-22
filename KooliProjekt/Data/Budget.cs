@@ -9,13 +9,10 @@ namespace KooliProjekt.Data
         [Required]
         public int ClientId { get; set; }
         [Required]
-        [StringLength(50)]
         public int BuildingsId { get; set; }
         [Required]
-        [StringLength(50)]
         public int ServicesId { get; set; }
         [Required]
-        [StringLength(50)]
         public DateTime Date { get; set; }
         [Required]
         public decimal Cost { get; set; }
