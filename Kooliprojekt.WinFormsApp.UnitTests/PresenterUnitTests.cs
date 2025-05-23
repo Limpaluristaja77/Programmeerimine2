@@ -19,6 +19,7 @@ namespace KooliProjekt.Tests
             _mockApiClient = new Mock<IApiClient>();
             _mockPanelView = new Mock<IPanelView>();
             _presenter = new PanelPresenter(_mockPanelView.Object, _mockApiClient.Object);
+
         }
 
         [Fact]
@@ -43,7 +44,7 @@ namespace KooliProjekt.Tests
                 Id = 1,
                 Name = "Panel",
                 Unit = "1",
-                UnitCost = 123.45M,
+                UnitCost = 123,
                 Manufacturer = "Power"
             };
 
@@ -78,6 +79,39 @@ namespace KooliProjekt.Tests
 
             // Assert
             _mockPanelView.VerifySet(v => v.Panels = panelList);
+        }
+
+        [Fact]
+        public async Task DeleteDeletes()
+        {
+            // Arrange
+            int panelId = 1;
+
+            // Act
+            await _presenter.Delete(panelId);
+
+            // Assert
+            _mockPanelView.Verify(api => api.Delete(panelId), Times.Once);
+        }
+
+        [Fact]
+        public async Task SaveSaves()
+        {
+            // Arrange
+            var panel = new Panel
+            {
+                Id = 1,
+                Name = "Panel",
+                Unit = "1",
+                UnitCost = 10,
+                Manufacturer = "Manufacturer"
+            };
+
+            // Act
+            await _presenter.Save(panel);
+
+            // Assert
+            _mockPanelView.Verify(api => api.Save(panel), Times.Once);
         }
     }
 }

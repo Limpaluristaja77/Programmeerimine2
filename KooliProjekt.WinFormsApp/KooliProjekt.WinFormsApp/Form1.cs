@@ -1,188 +1,176 @@
 using KooliProjekt.PublicApi.Api;
 using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Windows.Forms;
-
+using Panel = KooliProjekt.PublicApi.Api.Panel;
 
 namespace KooliProjekt.WinFormsApp
 {
     public partial class Form1 : Form, IPanelView
     {
-        public IList<KooliProjekt.PublicApi.Api.Panel> Panels 
-        {
-            get
-            {
-                return (IList<KooliProjekt.PublicApi.Api.Panel>)PanelsGrid.DataSource;
-            }
-            set
-            {
-                PanelsGrid.DataSource = value;
-            }
-        }
-
-        public KooliProjekt.PublicApi.Api.Panel SelectedItem { get; set; }
-
-        public PanelPresenter Presenter { get; set; }
-
-        public string Manufacturer
-        {
-            get
-            {
-                return ManufacturerField.Text; ;
-            }
-            set
-            {
-                ManufacturerField.Text = value;
-            }
-        }
-        public decimal UnitCost
-        {
-            get
-            {
-
-                decimal result;
-                if (decimal.TryParse(UnitCostField.Text, out result))
-                {
-                    return result;
-                }
-                else
-                {
-
-                    return 0;
-                }
-            }
-            set
-            {
-
-                UnitCostField.Text = value.ToString();
-            }
-        }
-        public string Unit
-        {
-            get
-            {
-                return UnitField.Text; ;
-            }
-            set
-            {
-                UnitField.Text = value;
-            }
-        }
-
-        public string Name
-        {
-            get
-            {
-                return NameField.Text; ;
-            }
-            set
-            {
-                NameField.Text = value;
-            }
-        }
-
-        public int Id
-        {
-            get
-            {
-                return int.Parse(IdField.Text);
-            }
-            set
-            {
-                IdField.Text = value.ToString();
-            }
-        }
-
-        System.Windows.Forms.Panel IPanelView.SelectedItem 
-        {
-            get; set;
-        }
+        private PanelPresenter _presenter;
 
         public Form1()
         {
             InitializeComponent();
+
+            var apiClient = new ApiClient();
+            _presenter = new PanelPresenter(this, apiClient);
+            Presenter = _presenter;
 
             PanelsGrid.SelectionChanged += PanelsGrid_SelectionChanged;
 
             NewButton.Click += NewButton_Click;
             SaveButton.Click += SaveButton_Click;
             DeleteButton.Click += DeleteButton_Click;
-            
-
         }
 
-        private async void DeleteButton_Click(object? sender, EventArgs e)
+        public IList<Panel> Panels
         {
-            // Küsi kustutamise kinnitust
-            // Kui vastus oli "Yes", siis kustuta element ja lae andmed uuesti
+            get => (IList<Panel>)PanelsGrid.DataSource;
+            set => PanelsGrid.DataSource = value;
+        }
 
-            var confirmationResult = MessageBox.Show("Are you sure?","Wish to delete?",MessageBoxButtons.YesNo,MessageBoxIcon.Warning);
-
-           
-            if (confirmationResult == DialogResult.Yes)
+        private Panel _selectedItem;
+        public Panel SelectedItem
+        {
+            get => _selectedItem;
+            set
             {
-                
+                _selectedItem = value;
+                _presenter.UpdateView(value);
             }
         }
 
-        private void SaveButton_Click(object? sender, EventArgs e)
+        public string Manufacturer
         {
-            // Kontrolli ID-d:
-            //  - kui IDField on tühi või 0, siis tee uus objekt
-            //  - kui IDField ei ole tühi, siis küsi käesolev objekt gridi käest
-            // Salvesta API kaudu
-            // Lae andmed API-st uuesti
-
-
-            
+            get => ManufacturerField.Text;
+            set => ManufacturerField.Text = value;
         }
 
-        private void NewButton_Click(object? sender, EventArgs e)
+        public decimal UnitCost
         {
-            IdField.Text = string.Empty;
-            NameField.Text = string.Empty;
-            UnitField.Text = string.Empty;
-            UnitCostField.Text = string.Empty;
-            ManufacturerField.Text = string.Empty;
-
+            get
+            {
+                if (decimal.TryParse(UnitCostField.Text, out var result))
+                    return result;
+                return 0;
+            }
+            set => UnitCostField.Text = value.ToString();
         }
 
-        private void PanelsGrid_SelectionChanged(object? sender, EventArgs e)
+        public string Unit
         {
-            if (PanelsGrid.SelectedRows.Count == 0)
-            {
-                return;
-            }
+            get => UnitField.Text;
+            set => UnitField.Text = value;
+        }
 
-            var panel = (KooliProjekt.PublicApi.Api.Panel)PanelsGrid.SelectedRows[0].DataBoundItem;
+        public string Name
+        {
+            get => NameField.Text;
+            set => NameField.Text = value;
+        }
 
-            if(panel == null)
+        public int Id
+        {
+            get
             {
-                IdField.Text = string.Empty;
-                NameField.Text = string.Empty;
-                UnitField.Text = string.Empty;
-                UnitCostField.Text = string.Empty;
-                ManufacturerField.Text = string.Empty;
+                if (int.TryParse(IdField.Text, out var result))
+                    return result;
+                return 0;
             }
-            else
-            {
-                IdField.Text = panel.Id.ToString();
-                NameField.Text = panel.Name;
-                UnitField.Text = panel.Unit;
-                UnitCostField.Text = panel.UnitCost.ToString();
-                ManufacturerField.Text = panel.Manufacturer;
-            }
+            set => IdField.Text = value.ToString();
+        }
+
+        public PanelPresenter Presenter { get; set; }
+        System.Windows.Forms.Panel IPanelView.SelectedItem { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+        private async Task LoadDataAsync()
+        {
+            await _presenter.Load();
         }
 
         protected override async void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
+            await LoadDataAsync();
+        }
 
-            var apiClient = new ApiClient();
-            var response = await apiClient.List();
+        private void PanelsGrid_SelectionChanged(object sender, EventArgs e)
+        {
+            if (PanelsGrid.SelectedRows.Count == 0)
+            {
+                SelectedItem = null;
+                return;
+            }
 
-            PanelsGrid.AutoGenerateColumns = true;
-            PanelsGrid.DataSource = response.Value;
-            
+            var panel = PanelsGrid.SelectedRows[0].DataBoundItem as Panel;
+            SelectedItem = panel;
+        }
+
+        private void NewButton_Click(object sender, EventArgs e)
+        {
+            Id = 0;
+            Name = string.Empty;
+            Unit = string.Empty;
+            UnitCost = 0;
+            Manufacturer = string.Empty;
+        }
+
+        private async void SaveButton_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                var panel = new Panel
+                {
+                    Id = Id,
+                    Name = Name,
+                    Unit = Unit,
+                    UnitCost = UnitCost,
+                    Manufacturer = Manufacturer
+                };
+
+                await _presenter.Save(panel);
+                await LoadDataAsync();
+
+                MessageBox.Show("Saved successfully!");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error saving: " + ex.Message);
+            }
+        }
+
+        private async void DeleteButton_Click(object sender, EventArgs e)
+        {
+            if (SelectedItem == null)
+            {
+                MessageBox.Show("No item selected to delete.");
+                return;
+            }
+
+            var result = MessageBox.Show(
+                "Are you sure you want to delete this item?",
+                "Confirm Delete",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning);
+
+            if (result == DialogResult.Yes)
+            {
+                await _presenter.Delete(SelectedItem.Id);
+                await LoadDataAsync();
+            }
+        }
+
+        public void Delete(int panelId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Save(Panel panel)
+        {
+            throw new NotImplementedException();
         }
     }
 }

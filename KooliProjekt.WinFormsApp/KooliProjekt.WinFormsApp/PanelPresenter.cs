@@ -1,7 +1,7 @@
-﻿using KooliProjekt.WinFormsApp;
-using KooliProjekt.PublicApi;
-using KooliProjekt.PublicApi.Api;
-
+﻿using KooliProjekt.PublicApi.Api;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Panel = KooliProjekt.PublicApi.Api.Panel;
 
 namespace KooliProjekt.WinFormsApp
 {
@@ -15,34 +15,43 @@ namespace KooliProjekt.WinFormsApp
             _apiClient = apiClient;
             _panelView = panelView;
 
-            panelView.Presenter = this;
+            _panelView.Presenter = this;
         }
 
-        public void UpdateView(KooliProjekt.PublicApi.Api.Panel list)
+        public async Task Load()
         {
-            if (list == null)
+            var response = await _apiClient.List();
+            _panelView.Panels = response.Value;
+        }
+
+        public async Task Delete(int panelId)
+        {
+            await _apiClient.Delete(panelId);
+        }
+
+        public async Task Save(Panel panel)
+        {
+            await _apiClient.Save(panel);
+        }
+
+        public void UpdateView(Panel panel)
+        {
+            if (panel == null)
             {
                 _panelView.Manufacturer = string.Empty;
-                _panelView.UnitCost = decimal.Zero;
+                _panelView.UnitCost = 0;
                 _panelView.Unit = string.Empty;
                 _panelView.Name = string.Empty;
                 _panelView.Id = 0;
             }
             else
             {
-                _panelView.Id = list.Id;
-                _panelView.Name = list.Name;
-                _panelView.Unit = list.Unit;
-                _panelView.UnitCost = list.UnitCost;
-                _panelView.Manufacturer = list.Manufacturer;
+                _panelView.Id = panel.Id;
+                _panelView.Name = panel.Name;
+                _panelView.Unit = panel.Unit;
+                _panelView.UnitCost = panel.UnitCost;
+                _panelView.Manufacturer = panel.Manufacturer;
             }
-        }
-
-        public async Task Load()
-        {
-            var panels = await _apiClient.List();
-
-            _panelView.Panels = panels.Value;
         }
     }
 }

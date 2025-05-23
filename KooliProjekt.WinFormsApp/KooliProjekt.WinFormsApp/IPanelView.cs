@@ -11,5 +11,8 @@ namespace KooliProjekt.WinFormsApp
         string Name { get; set; }
         int Id { get; set; }
         PanelPresenter Presenter { get; set; }
+
+        void Delete(int panelId);
+        void Save(PublicApi.Api.Panel panel);
     }
 }
