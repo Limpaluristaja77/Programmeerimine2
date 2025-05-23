@@ -104,8 +104,16 @@ namespace Kooliprojekt.WpfApp.UnitTests
             string errorMessage = null;
             _vm.OnError = e => errorMessage = e;
 
+            var result = new Result<List<Panel>>
+            {
+                Errors = new Dictionary<string, List<string>>
+        {
+            { "API", new List<string> { "API failed" } }
+        }
+            };
+
             _apiMock.Setup(x => x.List())
-                    .ReturnsAsync(new Result<List<Panel>> { Error = "API failed"});
+                    .ReturnsAsync(result);
 
             // Act
             await _vm.Load();

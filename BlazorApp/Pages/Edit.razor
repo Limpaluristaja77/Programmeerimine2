@@ -6,65 +6,101 @@
 
 <h3>@title Panel</h3>
 
-<EditForm Model="@panel" OnSubmit="@FormSubmitted">
-    <div class="form-group row">
-        <label for="name" class="col-sm-2 col-form-label">Name</label>
-        <div class="col-sm-10">
-            <InputText id="name" class="form-control" placeholder="Name" @bind-Value="panel.Name" />
+@if (editContext != null)
+{
+    <EditForm EditContext="@editContext" OnValidSubmit="@FormSubmitted">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div class="form-group row">
+            <label for="name" class="col-sm-2 col-form-label">Name</label>
+            <div class="col-sm-10">
+                <InputText id="name" class="form-control" placeholder="Name" @bind-Value="panel.Name" />
+                <ValidationMessage For="@(() => panel.Name)" />
+            </div>
         </div>
-    </div>
+        <div class="form-group row">
+            <label for="unit" class="col-sm-2 col-form-label">Unit</label>
+            <div class="col-sm-10">
+                <InputText id="unit" class="form-control" placeholder="Unit" @bind-Value="panel.Unit" />
+                <ValidationMessage For="@(() => panel.Unit)" />
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="unitCost" class="col-sm-2 col-form-label">Unit Cost</label>
+            <div class="col-sm-10">
+                <InputNumber id="unitCost" class="form-control" placeholder="Unit Cost" @bind-Value="panel.UnitCost" />
+                <ValidationMessage For="@(() => panel.UnitCost)" />
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="manufacturer" class="col-sm-2 col-form-label">Manufacturer</label>
+            <div class="col-sm-10">
+                <InputText id="manufacturer" class="form-control" placeholder="Manufacturer" @bind-Value="panel.Manufacturer" />
+                <ValidationMessage For="@(() => panel.Manufacturer)" />
+            </div>
+        </div>
 
-    <div class="form-group row">
-        <label for="unit" class="col-sm-2 col-form-label">Unit</label>
-        <div class="col-sm-10">
-            <InputText id="unit" class="form-control" placeholder="Unit" @bind-Value="panel.Unit" />
+        <div class="form-group row" style="margin-top:20px">
+            <label class="col-sm-2 col-form-label"></label>
+            <div class="col-sm-10">
+                <button type="submit" class="btn btn-primary">Save</button>
+            </div>
         </div>
-    </div>
-
-    <div class="form-group row">
-        <label for="unitCost" class="col-sm-2 col-form-label">Unit Cost</label>
-        <div class="col-sm-10">
-            <InputNumber id="unitCost" class="form-control" placeholder="Unit Cost" @bind-Value="panel.UnitCost" />
-        </div>
-    </div>
-
-    <div class="form-group row">
-        <label for="manufacturer" class="col-sm-2 col-form-label">Manufacturer</label>
-        <div class="col-sm-10">
-            <InputText id="manufacturer" class="form-control" placeholder="Manufacturer" @bind-Value="panel.Manufacturer" />
-        </div>
-    </div>
-
-    <div class="form-group row" style="margin-top:20px">
-        <label class="col-sm-2 col-form-label"></label>
-        <div class="col-sm-10">
-            <button type="submit" class="btn btn-primary">Save</button>
-        </div>
-    </div>
-</EditForm>
+    </EditForm>
+}
 
 @code {
+
     [Parameter]
     public int Id { get; set; }
 
     private Panel panel = new Panel();
+    private EditContext? editContext;
+    private ValidationMessageStore? messageStore;
     private string title = "Edit";
 
     protected override async Task OnInitializedAsync()
     {
         if (Id == 0)
         {
-            title = "Add";
+            editContext = new EditContext(panel);
+            messageStore = new ValidationMessageStore(editContext);
+
+            title = "Create new";
             return;
         }
 
         var result = await apiClient.Get(Id);
+        if (result.HasError)
+        {
+            AddValidationErrors(result);
+            return;
+        }
         panel = result.Value;
+
+        editContext = new EditContext(panel);
+        messageStore = new ValidationMessageStore(editContext);
     }
 
     private async Task FormSubmitted()
     {
-        await apiClient.Save(panel);
+        var result = await apiClient.Save(panel);
+        if (result.HasError)
+        {
+            AddValidationErrors(result);
+            return;
+        }
+
         NavManager.NavigateTo("/");
+    }
+
+    private void AddValidationErrors(Result result)
+    {
+        foreach (var error in result.Errors)
+            foreach (var message in error.Value)
+            {
+                var id = new FieldIdentifier(panel, error.Key);
+                messageStore.Add(id, message);
+            }
     }
 }

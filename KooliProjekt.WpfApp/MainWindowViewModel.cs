@@ -83,7 +83,7 @@ namespace KooliProjekt.WpfApp
             {
                 if (OnError != null)
                 {
-                    OnError(lists.Error);
+                    OnError(lists.Errors.First().Value.First());
                 }
 
                 return;
