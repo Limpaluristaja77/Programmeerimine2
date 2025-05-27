@@ -91,7 +91,8 @@ namespace KooliProjekt.Tests
             await _presenter.Delete(panelId);
 
             // Assert
-            _mockPanelView.Verify(api => api.Delete(panelId), Times.Once);
+            _mockApiClient.Verify(api => api.Delete(panelId), Times.Once);
+
         }
 
         [Fact]
@@ -111,7 +112,7 @@ namespace KooliProjekt.Tests
             await _presenter.Save(panel);
 
             // Assert
-            _mockPanelView.Verify(api => api.Save(panel), Times.Once);
+            _mockApiClient.Verify(api => api.Save(panel), Times.Once);
         }
     }
 }
